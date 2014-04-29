@@ -1,0 +1,14 @@
+package RASA.Neural_Network;
+
+public interface Neural_Network {
+	
+	// Attributes
+	public void Set_Name(String New_Name);
+	public String Get_Name();
+	
+	// Neurons
+	
+	// Neural Groups
+	
+	// Reports
+}

@@ -1,0 +1,19 @@
+/**
+ * 
+ */
+package RASA;
+
+/**
+ * @author Jake
+ *
+ */
+public class Neural_Network {
+
+	/**
+	 * 
+	 */
+	public Neural_Network() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

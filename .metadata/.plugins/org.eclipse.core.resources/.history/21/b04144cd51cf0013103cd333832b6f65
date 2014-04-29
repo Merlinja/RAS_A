@@ -1,0 +1,23 @@
+/**
+ * 
+ */
+package RASA;
+
+/**
+ * @author Jake
+ *
+ */
+public class Neural_Network {
+	
+	public String Alias;
+	
+	/**
+	 * 
+	 */
+	
+	// Constructor
+	public Neural_Network() {
+		Alias = "New NN";
+	}
+
+}

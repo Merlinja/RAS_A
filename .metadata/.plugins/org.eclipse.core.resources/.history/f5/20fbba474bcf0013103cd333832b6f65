@@ -1,0 +1,11 @@
+package RASA.Neural_Network;
+
+public interface Neural_Network {
+	// Attributes
+	
+	// Neurons
+	
+	// Neural Groups
+	
+	// Reports
+}
