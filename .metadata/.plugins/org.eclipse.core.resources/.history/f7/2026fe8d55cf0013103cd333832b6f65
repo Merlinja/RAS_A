@@ -1,0 +1,9 @@
+package RASA;
+
+public class Neural_Group {
+
+	public Neural_Group() {
+		// TODO Auto-generated constructor stub
+	}
+
+}
