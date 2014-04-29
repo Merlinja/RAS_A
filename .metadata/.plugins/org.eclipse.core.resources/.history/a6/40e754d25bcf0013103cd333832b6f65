@@ -1,0 +1,30 @@
+package RASA;
+
+public class Neural_Group {
+
+	// Attributes
+	public String Alias;
+	public Neural_Network Parent_NN;
+	public int ID;
+	
+	// Neurons
+	int Next_N_ID;
+	
+	// Constructor
+	public Neural_Group() {
+		Alias = "New NG";
+		Next_N_ID = 1;
+		ID = 0;
+	}
+	
+	// Reports
+	public void Print_Label() {
+		System.out.print("[NG:" + ID + "]");
+	}
+	
+	public void Print_Header() {
+		Parent_NN.Print_Header();
+		Print_Label();
+	}
+
+}

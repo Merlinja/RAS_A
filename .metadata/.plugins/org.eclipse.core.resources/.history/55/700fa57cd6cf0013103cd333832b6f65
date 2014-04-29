@@ -1,0 +1,9 @@
+package RASA;
+
+public class NG_Feeder {
+
+	public NG_Feeder() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

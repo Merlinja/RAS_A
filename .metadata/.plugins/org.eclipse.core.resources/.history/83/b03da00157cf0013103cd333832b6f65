@@ -1,0 +1,27 @@
+package RASA;
+
+public class Neural_Network {
+	
+	public String Alias;
+	
+	// Neural Groups
+	int Next_NG_ID;
+	
+	
+	// Constructor
+	public Neural_Network() {
+		Alias = "New NN";
+		Next_NG_ID = 1;
+	}
+
+	// Reports
+	public void Print_Report(String Tags) {
+		if (!Tags.contains("SHORT") || Tags.contains("FULL")) {
+			System.out.println("Printing Report for \"" + Alias + "\"");
+		}
+	}
+	
+	public void Print_Label() {
+		System.out.println("[NN:" + Alias + "]");
+	}
+}

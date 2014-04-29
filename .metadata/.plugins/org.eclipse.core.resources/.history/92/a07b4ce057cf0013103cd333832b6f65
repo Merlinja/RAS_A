@@ -1,0 +1,16 @@
+package RASA;
+
+public class Neural_Group {
+
+	// Attributes
+	String Alias;
+	
+	// Neurons
+	int Next_N_ID;
+	
+	public Neural_Group() {
+		Alias = "New NG";
+		Next_N_ID = 1;
+	}
+
+}

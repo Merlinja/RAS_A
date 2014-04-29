@@ -1,0 +1,27 @@
+AND
+<-- ANY (2)
+
+NOT
+<-- ANY (1)
+
+OR
+<-- ANY (2)
+
+INPUT or SENSOR
+<-- NONE
+
+OUTPUT or MOTOR
+<-- NONE
+
+ALIAS
+<-- ANY (1)
+
+VALUE
+<-- NONE
+
+	CHARGE_VALUE
+	<-- ANY (1)
+	<-- CHANNEL (1)
+
+LESS_THAN
+<-- Value (2)
