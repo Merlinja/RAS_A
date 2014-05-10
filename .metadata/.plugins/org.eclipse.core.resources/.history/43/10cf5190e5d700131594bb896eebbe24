@@ -1,0 +1,21 @@
+package RASA;
+
+public class Neuron {
+
+	int ID;
+	Neural_Group Parent_NG;
+	Channel Seeded_CH;
+	String Alias;
+	
+	public Neuron() {
+		ID = 0;
+		Seeded_CH = null;
+		Parent_NG = null;
+		Alias = "New Neuron";
+	}
+
+	public Neural_Network Parent_NN() {
+		return Parent_NG.Parent_NN;
+	}
+	
+}

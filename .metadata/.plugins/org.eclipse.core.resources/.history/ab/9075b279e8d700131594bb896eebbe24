@@ -1,0 +1,41 @@
+package RASA.Neuron_Types;
+
+import RASA.Channel;
+import RASA.Neuron;
+
+public class Input_Neuron extends Neuron {
+
+	boolean Active;
+	
+	public Input_Neuron() {
+		super();
+		Active = false;
+	}
+
+	void Activate() {
+		Activate(Parent_NN().Default_Input_CH);
+	}
+	
+	void Activate(Channel CH) {
+		Active = true;
+	}
+	
+	public void Print_Report(String Tags) {
+
+		super.Print_Report(Tags);		
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			Print_Header();
+			System.out.print(" Type: Sensor");
+
+			// Print attributes
+		}
+
+	}
+	
+	public void Print_Logic(int Indent) {
+		System.out.print("[Input] " + Alias);
+	}
+	
+}

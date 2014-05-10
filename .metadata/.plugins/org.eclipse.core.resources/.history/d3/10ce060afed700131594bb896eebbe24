@@ -1,0 +1,11 @@
+Tags
+
+SHORT - Trims unnecessary clutter
+FULL - Print all info
+HIDE_NN - Hide Neural net specific info
+HIDE_NG - Hide Neural group specific info
+HIDE_CH - Hide channel specific info
+HIDE_TN - Hide Time Node specific info
+HIDE_Neuron - Hide Neurons specific info
+HIDE_CN - Hide charge node specific info
+ACTIVE - Show active units

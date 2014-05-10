@@ -1,0 +1,23 @@
+package RASA.Neuron_Types;
+
+import RASA.Channel;
+import RASA.Neuron;
+
+public class Input_Neuron extends Neuron {
+
+	boolean Active;
+	
+	public Input_Neuron() {
+		super();
+		Active = false;
+	}
+
+	void Activate() {
+		Activate(Parent_NN().Default_Input_CH);
+	}
+	
+	void Activate(Channel CH) {
+		Active = true;
+	}
+	
+}

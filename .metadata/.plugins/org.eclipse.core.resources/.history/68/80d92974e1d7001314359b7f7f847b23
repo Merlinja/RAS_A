@@ -1,0 +1,148 @@
+//==========================================================================================
+//
+//	Internal Clock
+//
+//	Overview: The "when" part of the neural network. Each clock will advance at an interval,
+//		probably manually, and will keep track of what neurons were active at what cycle in
+//		the clock's history. That data will then be used to make relative statements between
+//		those neurons (e.g. X happened before Y).
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+// Imports
+import java.util.ArrayList;
+import java.util.List;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Internal_Clock Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Internal_Clock {
+
+	Time_Node Current_TN;
+	Time_Node First_TN;
+	Time_Node Last_TN;
+	int Current_Time;
+	public String Alias;
+	public int ID;
+	public Neural_Network Parent_NN;
+	
+	// List
+	public Internal_Clock Next;
+	public Internal_Clock Prev;
+	
+	public Internal_Clock() {
+		// TODO Auto-generated constructor stub
+		Alias = "New Internal Clock";
+		Current_TN = null;
+		First_TN = null;
+		Last_TN = null;
+		Current_Time = 0;
+		ID = 0;
+		Parent_NN = null;
+		Next = null;
+		Prev = null;
+	}
+
+	// TODO Finish this guy
+	public Time_Node Get_TN(int Time) {
+		// Check if list is empty
+		if (Current_TN == null) {
+			// Create new nodes
+			Current_TN = new Time_Node(Current_Time, this);
+			Current_TN.Time = Current_Time;
+			Current_TN.Parent_IC = this;
+			First_TN = Current_TN;
+			Last_TN = Current_TN;
+		}
+		
+		// Find start point to search
+		Time_Node TN = Current_TN;
+		int Displacement = 0;
+		while (TN.Time != Time) {
+			if (TN.Time < Time) {
+				// Search forward
+				Displacement++;
+				
+				// Check if next exists
+				if (TN.Next != null) {
+					TN = TN.Next;
+				} else { // Create next
+					TN.Next = new Time_Node(Current_Time + Displacement, this);
+					TN.Next.Prev = TN;
+				}
+			} else {
+				// Search backward
+				Displacement--;
+			}
+		}
+		
+		return Current_TN;
+	}
+	public Time_Node Get_TN() {
+		return Get_TN(0);
+	}
+	
+	public void Advance_Clock() {
+		Current_Time++;
+		Current_TN = Get_TN();
+	}
+	
+	
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_CH")) {
+			// Print border
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Internal Clock: " + Alias);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+	
+			}
+	}
+
+	public void Print_Label() {
+		System.out.print("[IC:" + ID + "]");
+	}
+
+	public void Print_Header() {
+		Parent_NN.Print_Header();
+		Print_Label();
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Internal_Clock Class
+//
+//==========================================================================================

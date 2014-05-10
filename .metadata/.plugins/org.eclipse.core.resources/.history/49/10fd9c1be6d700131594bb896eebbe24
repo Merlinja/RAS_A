@@ -1,0 +1,48 @@
+package RASA;
+
+public class Neuron {
+
+	int ID;
+	Neural_Group Parent_NG;
+	Channel Seeded_CH;
+	String Alias;
+	
+	public Neuron() {
+		ID = 0;
+		Seeded_CH = null;
+		Parent_NG = null;
+		Alias = "New Neuron";
+	}
+
+	public Neural_Network Parent_NN() {
+		return Parent_NG.Parent_NN;
+	}
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			// Print border
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Neuron: " + Alias);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+			// Print attributes
+		}
+
+	}
+
+	public void Print_Label() {
+		System.out.print("[N:" + ID + "]");
+	}
+
+	public void Print_Header() {
+		Parent_NG.Print_Header();
+		Print_Label();
+	}
+	
+}

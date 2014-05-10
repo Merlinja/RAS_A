@@ -1,0 +1,9 @@
+package RASA;
+
+public class Charge_Node {
+
+	public Charge_Node() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

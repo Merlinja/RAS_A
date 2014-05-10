@@ -1,0 +1,220 @@
+//==========================================================================================
+//
+//	Neuron
+//
+//	Overview: The "what" of the neural network, each neuron is a logical statement or idea,
+//		each idea is associated with other ideas (how likely A is true if B is true).
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Neuron Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Neuron {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	int ID;
+	Neural_Group Parent_NG;
+	Channel Seeded_CH;
+	public String Alias;
+	public Charge_Node First_CN;
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	public Neuron() {
+		ID = 0;
+		Seeded_CH = null;
+		Parent_NG = null;
+		Alias = "New Neuron";
+		First_CN = null;
+	}
+
+	public Neural_Network Parent_NN() {
+		return Parent_NG.Parent_NN;
+	}
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			// Print border
+			System.out.print("\n");
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Neuron: " + Alias);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+			// Channel seeding
+			if (Seeded_CH != null) {
+				Print_Header();
+				System.out.print("Seeding Channel:");
+				Seeded_CH.Print_Label();
+			}
+			
+			// Print Logic
+			Print_Header();
+			System.out.print("Logical blueprint:");
+			System.out.print("\n");
+			Print_Logic();
+			System.out.print("\n");
+		}
+		
+		// Print charge nodes
+		if (Tags.contains("FULL")) {
+			Print_Header();
+			System.out.print(" << Charges >>");
+		}
+
+	}
+
+	protected void Print_Indent(int Indent) {
+		System.out.print("\n");
+		for (int i=0; i<Indent; i++)
+			System.out.print(" ");
+	}
+	
+	public void Print_Label() {
+		System.out.print("[N:" + ID + "]");
+	}
+
+	public void Print_Header() {
+		Parent_NG.Print_Header();
+		Print_Label();
+	}
+	
+	public void Print_Logic(int Indent) {
+		Print_Indent(Indent);
+		System.out.print(Alias);
+	}
+	
+	public void Print_Charges(String Tags) {
+		Charge_Node CN1 = First_CN;
+		while (CN1 != null) {
+			Charge_Node CN2 = CN1;
+			while (CN2 != null) {
+				CN2.Print_Report(Tags);
+				CN2 = CN2.N_TN_Next;
+			}
+			CN1 = CN1.N_CH_Next;
+		}
+	}
+	
+	public void Print_Logic() {
+		Print_Logic(0);
+	}
+	
+	
+	
+	public int Complexity(){
+		return 1;
+	}
+	
+	//==========================================
+	// Charge Nodes
+	//------------------------------------------
+	
+	protected Charge_Node Find_CN(Time_Node TN, Channel CH) {
+		return null;
+	}
+	
+	public Charge_Node Get_CN(Time_Node TN, Channel CH) {
+		// Search
+		Charge_Node CN = Find_CN(TN, CH);
+		if (CN != null) return CN;
+		
+		// Create new charge node
+		CN = new Charge_Node();
+		CN.N = this;
+		CN.TN = TN;
+		CN.CH = CH;
+		
+		// If first charge node at to front of list
+		if (First_CN == null) {
+			First_CN = CN;
+			return CN;
+		}
+		
+		// [Insert into list] (find correct channel position)
+		Charge_Node Prev_CN = null;
+		Charge_Node Next_CN = First_CN;
+		while ((Next_CN != null) && (Next_CN.CH.ID < CN.CH.ID)) {
+			Prev_CN = Next_CN;
+			Next_CN = Next_CN.N_CH_Next;
+		} // Found channel position to insert
+		
+		if (Next_CN == null) { // End of list
+			CN.N_CH_Prev = Prev_CN;
+			if (Prev_CN == null) { // Front of list
+				First_CN.N_CH_Prev = CN;
+				CN.N_CH_Next = First_CN;
+				First_CN = CN;
+			}
+		} else if (Next_CN.CH.ID == CN.CH.ID) { // Channel exists in list
+			// Place under top CN then sort
+			if (Next_CN.N_TN_Next != null) { // Not bottom of list (TN)
+				Next_CN.N_TN_Next.N_TN_Prev = CN;
+			}
+			CN.N_TN_Next = Next_CN.N_TN_Next;
+			Next_CN.N_TN_Next = CN;
+			CN.N_TN_Prev = Next_CN;
+			// CN.Sort();
+			
+		} else { // Insert in front of next node
+			if (Prev_CN == null) { // Front of list
+				Next_CN.N_CH_Prev = CN;
+				CN.N_CH_Next = Next_CN;
+				First_CN = CN;
+			}
+		}
+		
+		
+		return null;
+	}
+
+	public void Activate() {
+		
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Neuron Class
+//
+//==========================================================================================

@@ -1,0 +1,134 @@
+//==========================================================================================
+//
+//	Charge Node
+//
+//	Overview: Record of a charge for a certain channel at a certain time.
+//
+//	Note: Weights behave like confidence ratings.
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Charge_Node Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Charge_Node {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	// Parent info
+	public Time_Node TN;
+	public Channel CH;
+	public Neuron N;
+	public Neural_Network NN;
+	
+	// List info
+	public Charge_Node TN_Next;
+	public Charge_Node TN_Prev;
+	public Charge_Node CH_Next;
+	public Charge_Node CH_Prev;
+	public Charge_Node N_Next;
+	public Charge_Node N_Prev;
+	public Charge_Node NN_Next;
+	public Charge_Node NN_Prev;
+	
+	// Attributes
+	public double Stimulation;
+	public double Current_Charge;
+	public double Current_Weight;
+	public double Potential_Charge;
+	public double Potential_Weight;
+	
+	// For use in updates
+	public double Charge;
+	public double Weight;
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	public Charge_Node() {
+		
+		// Initialize fields
+		TN = null;
+		CH = null;
+		N = null;
+		NN = null;
+		
+		TN_Next = null;
+		TN_Prev = null;
+		CH_Next = null;
+		CH_Prev = null;
+		N_Next = null;
+		N_Prev = null;
+		NN_Next = null;
+		NN_Prev = null;
+		
+		Stimulation = 0.0;
+		Current_Charge = 0.0;
+		Current_Weight = 0.0;
+		Potential_Charge = 0.0;
+		Potential_Weight = 0.0;
+		
+		Charge = 0.0;
+		Weight = 0.0;
+	}
+
+	public double Update_Rating() {
+		return 1.00;
+	}
+	
+	// Main method
+	public void Update() {
+		// Long Term
+		Reset_Working();
+		
+		// Short Term
+		Reset_Working();
+		
+		// Logic
+		Reset_Working();
+		
+		// Meta
+		Reset_Working();
+		
+		// Channel feeds
+		Reset_Working();
+	}
+	
+	void Reset_Working() {
+		Charge = 0.0;
+		Weight = 0.0;
+	}
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Charge_Node Class
+//
+//==========================================================================================

@@ -1,0 +1,149 @@
+//==========================================================================================
+//
+//	Neuron
+//
+//	Overview: The "what" of the neural network, each neuron is a logical statement or idea,
+//		each idea is associated with other ideas (how likely A is true if B is true).
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Neuron Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Neuron {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	int ID;
+	Neural_Group Parent_NG;
+	Channel Seeded_CH;
+	public String Alias;
+	public Charge_Node First_CN;
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	public Neuron() {
+		ID = 0;
+		Seeded_CH = null;
+		Parent_NG = null;
+		Alias = "New Neuron";
+		First_CN = null;
+	}
+
+	public Neural_Network Parent_NN() {
+		return Parent_NG.Parent_NN;
+	}
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			// Print border
+			System.out.print("\n");
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Neuron: " + Alias);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+			// Channel seeding
+			if (Seeded_CH != null) {
+				Print_Header();
+				System.out.print("Seeding Channel:");
+				Seeded_CH.Print_Label();
+			}
+			
+			// Print Logic
+			Print_Header();
+			System.out.print("Logical blueprint:");
+			System.out.print("\n");
+			Print_Logic();
+			System.out.print("\n");
+		}
+		
+		// Print charge nodes
+		if (Tags.contains("FULL")) {
+			Print_Header();
+			System.out.print(" << Charges >>");
+		}
+
+	}
+
+	protected void Print_Indent(int Indent) {
+		System.out.print("\n");
+		for (int i=0; i<Indent; i++)
+			System.out.print(" ");
+	}
+	
+	public void Print_Label() {
+		System.out.print("[N:" + ID + "]");
+	}
+
+	public void Print_Header() {
+		Parent_NG.Print_Header();
+		Print_Label();
+	}
+	
+	public void Print_Logic(int Indent) {
+		Print_Indent(Indent);
+		System.out.print(Alias);
+	}
+	
+	public void Print_Logic() {
+		Print_Logic(0);
+	}
+	
+	
+	
+	public int Complexity(){
+		return 1;
+	}
+	
+	//==========================================
+	// Charge Nodes
+	//------------------------------------------
+	protected Charge_Node Find_CN(Time_Node TN, Channel CH) {
+		
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Neuron Class
+//
+//==========================================================================================

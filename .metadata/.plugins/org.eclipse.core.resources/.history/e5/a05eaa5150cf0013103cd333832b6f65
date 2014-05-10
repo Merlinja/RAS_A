@@ -1,7 +1,0 @@
-package Tests;
-
-public class Test_1 {
-	public static void main(String[] args) {
-		Neural_Network NN = new Neural_Network();
-	}
-}

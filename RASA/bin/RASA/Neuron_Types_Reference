@@ -23,6 +23,9 @@ VALUE
 	CHARGE_VALUE
 	<-- ANY (1)
 	<-- CHANNEL (1)
+	
+	TIME_NODE
+	<-- NONE
 
 LESS_THAN
 <-- Value (2)
