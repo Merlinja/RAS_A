@@ -1,8 +1,8 @@
 //==========================================================================================
 //
-//	Test 1
+//	Neuron : Input Neuron
 //
-//	Overview: Basic test for constructing a neural net and testing reports.
+//	Overview: Is a manually activated neuron.
 //
 //==========================================================================================
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14,56 +14,71 @@
 //------------------------------------------------------------------------------------------
 
 // Package
-package Tests;
+package RASA.Neuron_Types;
 
 // Imports
 import RASA.Channel;
-import RASA.Neural_Group;
-import RASA.Neural_Network;
+import RASA.Charge_Node;
+import RASA.Neuron;
+import RASA.Time_Node;
 
 //------------------------------------------------------------------------------------------
 //
 //	[END] Includes, Packages, Headers
 //
 //==========================================================================================
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //==========================================================================================
 //
-//	[START] Test_1 Class
+//	[START] Neuron: Input_Neuron Class
 //
 //------------------------------------------------------------------------------------------
 
-public class Test_1 {
-	public static void main(String[] args) {
-		// Initialize test
-		System.out.println("Starting Test 1");
+public class Input_Neuron extends Neuron {
 
-		Neural_Network NN = new Neural_Network();
-		Neural_Group NG1 = NN.New_Neural_Group();
-		Neural_Group NG2 = NN.New_Neural_Group();
-		NN.Print_Report("SHORT");
-		NG1.Add_Feeder(NG2);
-		NG1.Add_Feeder(NG1);
-		Channel CH1 = NN.New_Channel();
-		NN.First_IC.Get_TN();
-		NN.First_IC.Get_TN(0);
-		NN.First_IC.Get_TN(1);
-		NN.First_IC.Get_TN(2);
-		NN.First_IC.Get_TN(5);
-		NG1.Add_N_Type("AND");
-		NG1.Add_N_Type("INPUT");
-		NN.Reward_Driver_N.Activate();
-		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(2), CH1);
-		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
-		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
-		NN.Print_Report("FULL");
-		if (NG1 == NG2) return;
+	boolean Active;
+	
+	public Input_Neuron() {
+		super();
+		Active = false;
 	}
+
+	public void Activate() {
+		Activate(Parent_NN().Default_Input_CH);
+	}
+	
+	public void Activate(Channel CH) {
+		Time_Node TN = Parent_NN().First_IC.Get_TN();
+		Charge_Node CN = Get_CN(TN, CH);
+		CN.Current_Charge = 1.0;
+		CN.Current_Weight = 1.0;
+		Active = true;
+	}
+	
+	public void Print_Report(String Tags) {
+
+		super.Print_Report(Tags);		
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			Print_Header();
+			System.out.print(" Type: Sensor");
+
+			// Print attributes
+		}
+
+	}
+	
+	public void Print_Logic(int Indent) {
+		Print_Indent(Indent);
+		System.out.print("[Input] " + Alias);
+	}
+	
 }
 
 //------------------------------------------------------------------------------------------
 //
-//	[END] Test_1 Class
+//	[END] Neuron: Input_Neuron Class
 //
 //==========================================================================================

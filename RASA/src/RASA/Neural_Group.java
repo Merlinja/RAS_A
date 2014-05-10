@@ -1,13 +1,49 @@
+//==========================================================================================
+//
+//	Neural Groups
+//
+//	Overview: The major components of the neural networks, they contain groups of neurons
+//		and may construct neurons from specified neuron types and other source neural
+//		groups.
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
 package RASA;
 
+// Imports
 import java.util.ArrayList;
 import java.util.List;
 
+import RASA.Neuron_Types.Input_Neuron;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Neural_Group Class
+//
+//------------------------------------------------------------------------------------------
+
 public class Neural_Group {
 
-	// =====================================================================
-	// CLASS FIELDS
-	// ---------------------------------------------------------------------
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
 	
 	// Attributes
 	public String Alias;
@@ -22,10 +58,13 @@ public class Neural_Group {
 	int Next_N_ID;
 	int Max_N_Complexity; // Max complexity of constructed neurons
 	List<String> N_Types = new ArrayList<String>();
+	List<Neuron> N_List = new ArrayList<Neuron>();
 
-	// =====================================================================
-	// CLASS Methods
-	// ---------------------------------------------------------------------
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
 	
 	// Constructor
 	public Neural_Group() {
@@ -34,7 +73,10 @@ public class Neural_Group {
 		ID = 0;
 	}
 
+	//==========================================
 	// Reports
+	//------------------------------------------
+	
 	public void Print_Report(String Tags) {
 		if (Tags.contains("FULL") || !Tags.contains("HIDE_NG")) {
 			if (Tags.contains("SHORT")) {
@@ -43,31 +85,43 @@ public class Neural_Group {
 				System.out.print("\"" + Alias + "\"");
 			} else {
 				// Print border
+				System.out.print("\n");
 				Print_Header();
 				System.out.print("==================================");
 				Print_Header();
-				System.out.print(" Printing Report: " + Alias);
+				System.out.print(" Printing Neural Group: " + Alias);
 				Print_Header();
 				System.out.print("----------------------------------");
 			}
 			
 			// Print construction info
 			
+			// Go through feeding
+			if (Feed_From.size() + Feed_To.size() > 0) {
+				Print_Header();
+				Print_Header();
+				System.out.print(" Feeding:");
+			}
 			// Print feeding from info
 			for (int F = 0; F < Feed_From.size(); F++) {
 				Print_Header();
-				System.out.print(" <-- ");
+				System.out.print(" <-- \"" + Feed_From.get(F).Alias + "\" ");
 				Feed_From.get(F).Print_Label();
 			}
 			// Print feeding to info
 			for (int F = 0; F < Feed_To.size(); F++) {
 				Print_Header();
-				System.out.print(" --> ");
+				System.out.print(" --> \"" + Feed_To.get(F).Alias + "\" ");
 				Feed_To.get(F).Print_Label();
 			}
-			// Print feeding to info
+			// Print neuron types
 			for (int NT = 0; NT < N_Types.size(); NT++) {
-				if (NT % 5 == 0 ) Print_Header();
+				if (NT == 0) {
+					Print_Header();
+					Print_Header();
+					System.out.print(" N Types:");
+				}
+				if ((NT + 2) % 5 == 0 ) Print_Header();
 				System.out.print(" {" + N_Types.get(NT) + "}");
 				if (NT < (N_Types.size() - 1)) System.out.print(",");
 			}
@@ -82,7 +136,14 @@ public class Neural_Group {
 			Print_Header();
 			System.out.print(" Max Complexity = " + Max_N_Complexity);
 		}
-
+		
+		// Print neurons
+		Print_Header();
+		Print_Header();
+		System.out.print(" << Neurons >>");
+		for (int N = 0; N < N_List.size(); N++) {
+			N_List.get(N).Print_Report(Tags);
+		}
 	}
 
 	public void Print_Label() {
@@ -93,8 +154,12 @@ public class Neural_Group {
 		Print_Label();
 	}
 
+	//==========================================
+	// Neuron Management
+	//------------------------------------------
+	
 	public void Add_Feeder(Neural_Group New_Feeder) {
-		// TODO check for edundancies, already exists
+		// TODO check for redundancies, already exists
 		if (New_Feeder == null) return;
 		Feed_From.add(New_Feeder);
 		New_Feeder.Feed_To.add(this);
@@ -102,9 +167,45 @@ public class Neural_Group {
 	
 	// Adds a neuron type for construction
 	public void Add_N_Type(String New_Type) {
-		// TODO check for edundancies, already exists
+		// TODO check for redundancies, already exists
 		if (New_Type == null) return;
 		N_Types.add(New_Type);
 	}
 	
+	// Checks whether valid neuron type
+	boolean Valid_N_Type (String N_Type) {
+		for (int NT = 0; NT < N_Types.size(); NT++) {
+			if (N_Types.get(NT).equals(N_Type)) return true;
+		}
+		return false;
+	}
+	
+	public Neuron New_Neuron(String Type) {
+		// Check for valid type
+		if (!Valid_N_Type(Type)) return null;
+		Neuron N;
+		switch (Type) {
+			case "INPUT": case "SENSOR":
+				N = new Input_Neuron();
+				break;
+			default:
+				N = new Neuron();
+				break;	
+		}
+		
+		// Initialize
+		N.Parent_NG = this;
+		N.ID = Next_N_ID;
+		Next_N_ID++;
+		N.Alias = "New " + Type + " Neuron";
+		N_List.add(N);
+		return N;
+	}
+	
 }
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Neural_Group Class
+//
+//==========================================================================================

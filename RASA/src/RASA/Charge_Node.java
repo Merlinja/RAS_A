@@ -1,0 +1,209 @@
+//==========================================================================================
+//
+//	Charge Node
+//
+//	Overview: Record of a charge for a certain channel at a certain time.
+//
+//	Note: Weights behave like confidence ratings.
+//		Between 0.00 (0%) and 1.00 (100%)
+//
+//		Created and accessed through neurons.
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Charge_Node Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Charge_Node {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	// Parent info
+	public Time_Node TN;
+	public Channel CH;
+	public Neuron N;
+	public Neural_Network NN;
+	
+	// Unordered lists
+	public Charge_Node TN_Next;
+	public Charge_Node TN_Prev;
+	public Charge_Node CH_Next;
+	public Charge_Node CH_Prev;
+	
+	// Ordered Lists
+	public Charge_Node NN_Next;
+	public Charge_Node NN_Prev;
+	public Charge_Node N_CH_Next; // Neuron -> Channel
+	public Charge_Node N_CH_Prev; // Neuron -> Channel
+	public Charge_Node N_TN_Next; // Neuron -> Channel -> Time Node
+	public Charge_Node N_TN_Prev; // Neuron -> Channel -> Time Node
+	
+	// Attributes
+	public double Stimulation;
+	public double Current_Charge;
+	public double Current_Weight;
+	public double Potential_Sum;
+	public double Potential_Weight;
+	
+	// For use in updates
+	public double Charge;
+	public double Weight;
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	public Charge_Node() {
+		
+		// Initialize fields
+		TN = null;
+		CH = null;
+		N = null;
+		NN = null;
+		
+		// Unordered lists
+		TN_Next = null;
+		TN_Prev = null;
+		CH_Next = null;
+		CH_Prev = null;
+		
+		// Ordered lists
+		NN_Next = null;
+		NN_Prev = null;
+		N_CH_Next = null;
+		N_CH_Prev = null;
+		N_TN_Next = null;
+		N_TN_Next = null;
+		
+		Stimulation = 0.0;
+		Current_Charge = 0.0;
+		Current_Weight = 0.0;
+		Potential_Sum = 0.0;
+		Potential_Weight = 0.0;
+		
+		Charge = 0.0;
+		Weight = 0.0;
+	}
+
+	public double Update_Rating() {
+		return Stimulation;
+	}
+	
+	// Main method
+	public void Update() {
+		
+		// Reset variables
+		Potential_Sum = 0.0;
+		Potential_Weight = 0.0;
+		Reset_Working();
+		
+		// Long Term
+		Reset_Working();
+		// Neuron.LT_Analysis(this);
+		Potential_Weight += Weight * CH.LT_Weight;
+		Potential_Sum += Charge * Weight * CH.LT_Weight;
+		
+		// Short Term
+		Reset_Working();
+		// Neuron.ST_Analysis(this);
+		Potential_Weight += Weight * CH.ST_Weight;
+		Potential_Sum += Charge * Weight * CH.ST_Weight;
+		
+		// Logic
+		Reset_Working();
+		// Neuron.LC_Analysis(this);
+		Potential_Weight += Weight * CH.LC_Weight;
+		Potential_Sum += Charge * Weight * CH.LC_Weight;
+		
+		// Meta
+		Reset_Working();
+		// Neuron.MC_Analysis(this);
+		Potential_Weight += Weight * CH.MC_Weight;
+		Potential_Sum += Charge * Weight * CH.MC_Weight;
+		
+		// Channel feeds
+		Reset_Working();
+		// Neuron.CH_Analysis(this);
+		Potential_Weight += Weight * CH.CH_Weight;
+		Potential_Sum += Charge * Weight * CH.CH_Weight;
+		
+		Current_Charge = Potential_Sum / Potential_Weight;
+		Current_Weight = Potential_Weight;
+	}
+	
+	void Reset_Working() {
+		Charge = 0.0;
+		Weight = 0.0;
+	}
+	
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+		Print_Header();
+		System.out.print(" " + (Current_Charge * 100.0) + "% (" + Current_Weight + ")");
+		
+		if (Tags.contains("DEBUG") && !Tags.contains("HIDE_CN")) {
+
+			Print_Header();
+			System.out.print(" N_CH_Next: ");
+			if (N_CH_Next == null) System.out.print(" ---");
+			else N_CH_Next.Print_Header();
+			Print_Header();
+			System.out.print(" N_CH_Prev: ");
+			if (N_CH_Prev == null) System.out.print(" ---");
+			else N_CH_Prev.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Next: ");
+			if (N_TN_Next == null) System.out.print(" ---");
+			else N_TN_Next.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Prev: ");
+			if (N_TN_Prev == null) System.out.print(" ---");
+			else N_TN_Prev.Print_Header();
+		}
+		
+	}
+
+	public void Print_Header() {
+		N.Print_Header();
+		CH.Print_Label();
+		TN.Print_Label();
+	}
+	
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Charge_Node Class
+//
+//==========================================================================================
