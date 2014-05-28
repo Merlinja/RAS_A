@@ -123,51 +123,39 @@ public class Charge_Node {
 	}
 	
 	public void Sort() {
-		// Original order: A B C D E
+		// Info:
+		// This sort handles 3 charge nodes:
+		//	A - The previous node
+		//	B - This node
+		//	C - The next node
 		
-		Charge_Node A = null;
-		Charge_Node B = N_TN_Prev;
-		Charge_Node C = this;
-		Charge_Node D = N_TN_Next;
-		Charge_Node E = null;
+		Charge_Node A = N_TN_Next;
+		Charge_Node B = this;
+		Charge_Node C = N_TN_Prev;
 		
-		if (B != null) A = B.N_TN_Prev;
-		if (D != null) E = D.N_TN_Next;
+		// [1] Sort by Time node
 		
-		// [I] Sort by Time node
-		
-		// (I.1) - - C - -
-		if (B == null && D == null) {}
-		// (I.2) * * C D * --> * * D C *
-		else if (D != null && D.Time() < C.Time()) {
-			// (I.2.a) - - C D * --> - - D C *
-			if (B == null) {
-				// C is top of TN list, D becomes new top of list
-				// D needs to be connected to the CH list
-
-				// CH_Next
-				if (C.CH_Next != null) C.N_CH_Next.N_CH_Prev = D;
-				D.N_CH_Next = C.N_CH_Next;
-				C.N_CH_Next = null;
-
-				// CH_Prev
-				if (C.CH_Prev == null) N.First_CN = D;
-				else C.N_CH_Prev.N_CH_Next = D;
-				D.N_CH_Prev = C.N_CH_Prev;
-				C.N_CH_Prev = null;
+		if (A == null && C == null) 
+		{ // Only node listed for this time node skip
+			// Skip
+		} else if (C != null && C.Time() < B.Time()) 
+		{ // Swap B <-> C
+			if (B.N_TN_Prev == null) 
+			{ // B is at top of TN list
+				if (B.N_CH_Next != null) {
+					B.N_CH_Next.N_CH_Prev = C;
+					C.N_CH_Next = B.N_CH_Next;
+					B.N_CH_Next = null;
+				}
+				if (B.N_CH_Prev == null) 
+				{ // B is at front of CH list
+					N.First_CN = C;
+				}
+				
 			}
-			
-			// * * C D * --> * * D C *
-			D.N_TN_Next = C;
-			C.N_TN_Prev = D;
-			
-			// * * C D E --> * * D C E
-			// * * C D - --> * * D C -
-			C.N_TN_Next = E;
-			if (E != null) 	E.N_TN_Prev = C;
 		}
 		
-		// [II] Sort by Channel
+		// [2] Sort by Channel
 	}
 	
 	// Main method

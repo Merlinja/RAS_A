@@ -155,6 +155,9 @@ public class Charge_Node {
 				else C.N_CH_Prev.N_CH_Next = D;
 				D.N_CH_Prev = C.N_CH_Prev;
 				C.N_CH_Prev = null;
+				
+
+
 			}
 			
 			// * * C D * --> * * D C *

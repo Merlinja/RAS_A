@@ -205,7 +205,6 @@ public class Neuron {
 				Next_CN.N_CH_Prev = CN;
 				CN.N_CH_Next = Next_CN;
 				First_CN = CN;
-				CN.Sort();
 			}
 		}
 		

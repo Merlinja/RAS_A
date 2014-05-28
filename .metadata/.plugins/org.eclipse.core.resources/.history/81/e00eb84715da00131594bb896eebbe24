@@ -141,7 +141,7 @@ public class Charge_Node {
 		// (I.2) * * C D * --> * * D C *
 		else if (D != null && D.Time() < C.Time()) {
 			// (I.2.a) - - C D * --> - - D C *
-			if (B == null) {
+			if (C.N_TN_Prev == null) {
 				// C is top of TN list, D becomes new top of list
 				// D needs to be connected to the CH list
 
@@ -155,16 +155,12 @@ public class Charge_Node {
 				else C.N_CH_Prev.N_CH_Next = D;
 				D.N_CH_Prev = C.N_CH_Prev;
 				C.N_CH_Prev = null;
+				
+				// (I.2.a.i) * D E --> * C E
+				C.N_TN_Next = E;
+				if (E != null) 	E.N_TN_Prev = C;
+
 			}
-			
-			// * * C D * --> * * D C *
-			D.N_TN_Next = C;
-			C.N_TN_Prev = D;
-			
-			// * * C D E --> * * D C E
-			// * * C D - --> * * D C -
-			C.N_TN_Next = E;
-			if (E != null) 	E.N_TN_Prev = C;
 		}
 		
 		// [II] Sort by Channel
