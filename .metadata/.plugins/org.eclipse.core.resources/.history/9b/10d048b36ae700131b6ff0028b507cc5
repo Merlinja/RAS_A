@@ -225,7 +225,7 @@ public class Neuron {
 			CN.N_TN_Next = Next_CN.N_TN_Next;
 			Next_CN.N_TN_Next = CN;
 			CN.N_TN_Prev = Next_CN;
-			CN.Sort();
+			// CN.Sort();
 			
 		} else { // Insert in front of next node
 			if (Prev_CN == null) { // Front of list

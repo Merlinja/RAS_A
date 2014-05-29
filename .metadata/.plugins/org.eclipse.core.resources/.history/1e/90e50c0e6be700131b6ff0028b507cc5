@@ -287,10 +287,8 @@ public class Neural_Network {
 						if (Tags.contains("DEBUG")) {
 							System.out.print("\n\nATTEMPTING: ");
 							N_From.Get_CN(First_IC.Get_TN(), CH).Print_Header();
-							System.out.print(" " + N_From.Get_CN(First_IC.Get_TN(), CH).Current_Charge);
+							System.out.print(N_From.Get_CN(First_IC.Get_TN(), CH).Current_Charge);
 							N_To.Get_CN(First_IC.Get_TN(), CH).Print_Header();
-							System.out.print(" " + N_To.Get_CN(First_IC.Get_TN(), CH).Current_Charge);
-
 						}
 						
 						// Don't bond with self

@@ -54,24 +54,19 @@ public class Test_1 {
 		NG1.Add_N_Type("AND");
 		NG1.Add_N_Type("INPUT");
 		NN.Reward_Driver_N.Activate();
-		System.out.println("A");
-		NN.Reward_Driver_N.Print_Charges("");
 		NN.Punish_Driver_N.Activate();
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(2), CH1);
-		System.out.println("B");
-		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
-		System.out.println("C");
-		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
-		System.out.println("D");
-		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(1), CH1);
-		System.out.println("E");
-		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
-		System.out.println("F");
-		NN.Reward_Driver_N.Print_Charges("");
+		NN.Reward_Driver_N.Activate();
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(2), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(1), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
 
 		NN.Update_Synapses("ABSOLUTE, DEBUG");
 		

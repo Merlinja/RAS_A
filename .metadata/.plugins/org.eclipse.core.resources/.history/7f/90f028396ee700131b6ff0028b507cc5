@@ -58,19 +58,19 @@ public class Test_1 {
 		NN.Reward_Driver_N.Print_Charges("");
 		NN.Punish_Driver_N.Activate();
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(2), CH1);
-		System.out.println("B");
+		System.out.println("A");
 		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
-		System.out.println("C");
+		System.out.println("A");
 		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
-		System.out.println("D");
+		System.out.println("A");
 		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(1), CH1);
-		System.out.println("E");
+		System.out.println("A");
 		NN.Reward_Driver_N.Print_Charges("");
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
-		System.out.println("F");
+		System.out.println("A");
 		NN.Reward_Driver_N.Print_Charges("");
 
 		NN.Update_Synapses("ABSOLUTE, DEBUG");

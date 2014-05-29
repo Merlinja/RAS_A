@@ -190,18 +190,24 @@ public class Charge_Node {
 				B.N_CH_Prev = null;
 				
 			} 
-					
-
+			
+			// (I.3.b) A B C * * --> A C B * *
+			else {
+				A.N_TN_Next = C;
+			}
+			
 			// * B C * * --> * C B * *
 			C.N_TN_Next = B;
 			C.N_TN_Prev = A;
 			B.N_TN_Next = D;
 			B.N_TN_Prev = C;
-			if (A != null)	A.N_TN_Next = C;
-			if (D != null)	D.N_TN_Prev = B;
+			
+			// * B C D * --> * C B D *
+			if (D != null) {
+				D.N_TN_Prev = B;
+			}
 
 			C.Sort();
-
 			
 		}
 		

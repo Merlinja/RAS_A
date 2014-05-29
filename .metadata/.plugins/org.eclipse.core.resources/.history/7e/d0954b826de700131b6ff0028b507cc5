@@ -174,7 +174,7 @@ public class Charge_Node {
 		// (I.3) * B C * * --> * C B * *
 		else if (B != null && C.Time() < B.Time()) {
 			// (I.3.a) - B C * * --> - C B * *
-			if (A == null) {
+			if (A == null && false) {
 				// B is top of TN list, C becomes new top of list
 				// C needs to be connected to the CH list
 

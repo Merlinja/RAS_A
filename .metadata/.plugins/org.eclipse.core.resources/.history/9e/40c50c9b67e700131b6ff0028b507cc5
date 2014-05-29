@@ -138,7 +138,6 @@ public class Charge_Node {
 		
 		// (I.1) - - C - -
 		if (B == null && D == null) {}
-		
 		// (I.2) * * C D * --> * * D C *
 		else if (D != null && D.Time() < C.Time()) {
 			// (I.2.a) - - C D * --> - - D C *
@@ -166,49 +165,12 @@ public class Charge_Node {
 			// * * C D - --> * * D C -
 			C.N_TN_Next = E;
 			if (E != null) 	E.N_TN_Prev = C;
-			
-			C.Sort();
-			
-		}
-		
-		// (I.3) * B C * * --> * C B * *
-		else if (B != null && C.Time() < B.Time()) {
-			// (I.3.a) - B C * * --> - C B * *
-			if (A == null) {
-				// B is top of TN list, C becomes new top of list
-				// C needs to be connected to the CH list
-
-				// CH_Next
-				if (B.CH_Next != null) B.N_CH_Next.N_CH_Prev = C;
-				C.N_CH_Next = B.N_CH_Next;
-				B.N_CH_Next = null;
-
-				// CH_Prev
-				if (B.CH_Prev == null) N.First_CN = C;
-				else B.N_CH_Prev.N_CH_Next = C;
-				C.N_CH_Prev = B.N_CH_Prev;
-				B.N_CH_Prev = null;
-				
-			} 
-					
-
-			// * B C * * --> * C B * *
-			C.N_TN_Next = B;
-			C.N_TN_Prev = A;
-			B.N_TN_Next = D;
-			B.N_TN_Prev = C;
-			if (A != null)	A.N_TN_Next = C;
-			if (D != null)	D.N_TN_Prev = B;
-
-			C.Sort();
-
-			
 		}
 		
 		// [II] Sort by Channel
 		
 		// [III] Continue Sort
-
+		C.Sort();
 	}
 	
 	// Main method
