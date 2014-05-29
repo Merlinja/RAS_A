@@ -148,7 +148,7 @@ public class Charge_Node {
 		}
 		
 		// (I.3) * B C * * --> * C B * *
-		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Time() < B.Time()))) {
+		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID) && C.Time() < B.Time()))) {
 			if (A == null) C.N.First_CN = C;
 			else A.N_Next = C;
 			B.N_Prev = C;
@@ -160,6 +160,10 @@ public class Charge_Node {
 			C.Sort();
 		}
 		
+		// [II] Sort by Channel
+		
+		// [III] Continue Sort
+
 	}
 	
 	// Main method

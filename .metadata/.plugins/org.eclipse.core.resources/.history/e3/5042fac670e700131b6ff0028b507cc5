@@ -162,13 +162,13 @@ public class Neuron {
 		if (CN == null) return null;
 		
 		// Search by channel
-		while ((CN != null) && (CN.CH.ID <= CH.ID || (CN.CH.ID == CH.ID && CN.TN.Time <= TN.Time))) 
-		{
+		while (CN != null && (CN.CH.ID <= CH.ID) && (CN.TN.Time <= TN.Time)) {
 			if (CN.CH.ID == CH.ID && CN.TN.Time == TN.Time) return CN;
 			CN = CN.N_Next;		
 		}
 		
 		return null;
+
 	}
 	
 	public Charge_Node Get_CN(Time_Node TN, Channel CH) {
@@ -182,12 +182,48 @@ public class Neuron {
 		CN.TN = TN;
 		CN.CH = CH;
 		
-		if (First_CN != null) {
-			First_CN.N_Prev = CN;
-			CN.N_Next = First_CN;
+		// If first charge node at to front of list
+		if (First_CN == null) {
+			First_CN = CN;
+			return CN;
 		}
-		First_CN = CN;
-		CN.Sort();
+		
+		// [Insert into list] (find correct channel position)
+		Charge_Node Prev_CN = null;
+		Charge_Node Next_CN = First_CN;
+		while ((Next_CN != null) && (Next_CN.CH.ID < CN.CH.ID)) {
+			Prev_CN = Next_CN;
+			Next_CN = Next_CN.N_CH_Next;
+		} // Found channel position to insert
+		
+		if (Next_CN == null) { // End of list
+			CN.N_CH_Prev = Prev_CN;
+			if (Prev_CN == null) { // Front of list
+				First_CN.N_CH_Prev = CN;
+				CN.N_CH_Next = First_CN;
+				First_CN = CN;
+			} else { // End of list, not first
+				Prev_CN.N_CH_Next = CN;
+			}
+		} else if (Next_CN.CH.ID == CN.CH.ID) { // Channel exists in list
+			// Place under top CN then sort
+			if (Next_CN.N_TN_Next != null) { // Not bottom of list (TN)
+				Next_CN.N_TN_Next.N_TN_Prev = CN;
+			}
+			CN.N_TN_Next = Next_CN.N_TN_Next;
+			Next_CN.N_TN_Next = CN;
+			CN.N_TN_Prev = Next_CN;
+			CN.Sort();
+			
+		} else { // Insert in front of next node
+			if (Prev_CN == null) { // Front of list
+				Next_CN.N_CH_Prev = CN;
+				CN.N_CH_Next = Next_CN;
+				First_CN = CN;
+				CN.Sort();
+			}
+		}
+		
 		
 		return CN;
 	}

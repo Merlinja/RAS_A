@@ -136,7 +136,7 @@ public class Charge_Node {
 		if (B == null && D == null) {}
 		
 		// (I.2) * * C D * --> * * D C *
-		else if ((D != null) && ((D.CH.ID < C.CH.ID) || (D.CH.ID == C.CH.ID && D.Time() < C.Time()))) {
+		else if (D != null && D.Time() < C.Time()) {
 			C.N_Next = E;
 			if (E != null) E.N_Prev = C;
 			C.N_Prev = D;
@@ -148,7 +148,7 @@ public class Charge_Node {
 		}
 		
 		// (I.3) * B C * * --> * C B * *
-		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Time() < B.Time()))) {
+		else if (B != null && C.Time() < B.Time()) {
 			if (A == null) C.N.First_CN = C;
 			else A.N_Next = C;
 			B.N_Prev = C;
@@ -160,6 +160,10 @@ public class Charge_Node {
 			C.Sort();
 		}
 		
+		// [II] Sort by Channel
+		
+		// [III] Continue Sort
+
 	}
 	
 	// Main method
@@ -221,13 +225,21 @@ public class Charge_Node {
 		if (Tags.contains("DEBUG") && !Tags.contains("HIDE_CN")) {
 
 			Print_Header();
-			System.out.print(" N_Next: ");
-			if (N_Next == null) System.out.print(" ---");
-			else N_Next.Print_Header();
+			System.out.print(" N_CH_Next: ");
+			if (N_CH_Next == null) System.out.print(" ---");
+			else N_CH_Next.Print_Header();
 			Print_Header();
-			System.out.print(" N_Prev: ");
-			if (N_Prev == null) System.out.print(" ---");
-			else N_Prev.Print_Header();
+			System.out.print(" N_CH_Prev: ");
+			if (N_CH_Prev == null) System.out.print(" ---");
+			else N_CH_Prev.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Next: ");
+			if (N_TN_Next == null) System.out.print(" ---");
+			else N_TN_Next.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Prev: ");
+			if (N_TN_Prev == null) System.out.print(" ---");
+			else N_TN_Prev.Print_Header();
 		}
 		
 	}

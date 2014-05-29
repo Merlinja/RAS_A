@@ -57,8 +57,10 @@ public class Charge_Node {
 	// Ordered Lists
 	public Charge_Node NN_Next;
 	public Charge_Node NN_Prev;
-	public Charge_Node N_Next;
-	public Charge_Node N_Prev;
+	public Charge_Node N_CH_Next; // Neuron -> Channel
+	public Charge_Node N_CH_Prev; // Neuron -> Channel
+	public Charge_Node N_TN_Next; // Neuron -> Channel -> Time Node
+	public Charge_Node N_TN_Prev; // Neuron -> Channel -> Time Node
 	
 	// Attributes
 	public double Stimulation;
@@ -95,8 +97,10 @@ public class Charge_Node {
 		// Ordered lists
 		NN_Next = null;
 		NN_Prev = null;
-		N_Next = null;
-		N_Prev = null;
+		N_CH_Next = null;
+		N_CH_Prev = null;
+		N_TN_Next = null;
+		N_TN_Next = null;
 		
 		Stimulation = 0.0;
 		Current_Charge = 0.0;
@@ -122,13 +126,13 @@ public class Charge_Node {
 		// Original order: A B C D E
 		
 		Charge_Node A = null;
-		Charge_Node B = N_Prev;
+		Charge_Node B = N_TN_Prev;
 		Charge_Node C = this;
-		Charge_Node D = N_Next;
+		Charge_Node D = N_TN_Next;
 		Charge_Node E = null;
 		
-		if (B != null) A = B.N_Prev;
-		if (D != null) E = D.N_Next;
+		if (B != null) A = B.N_TN_Prev;
+		if (D != null) E = D.N_TN_Next;
 		
 		// [I] Sort by Time node
 		
@@ -136,30 +140,75 @@ public class Charge_Node {
 		if (B == null && D == null) {}
 		
 		// (I.2) * * C D * --> * * D C *
-		else if ((D != null) && ((D.CH.ID < C.CH.ID) || (D.CH.ID == C.CH.ID && D.Time() < C.Time()))) {
-			C.N_Next = E;
-			if (E != null) E.N_Prev = C;
-			C.N_Prev = D;
-			D.N_Next = C;
-			D.CH_Prev = B;
-			if (B == null) C.N.First_CN = D;
-			else B.N_Next = D;
+		else if (D != null && D.Time() < C.Time()) {
+			// (I.2.a) - - C D * --> - - D C *
+			if (B == null) {
+				// C is top of TN list, D becomes new top of list
+				// D needs to be connected to the CH list
+
+				// CH_Next
+				if (C.CH_Next != null) C.N_CH_Next.N_CH_Prev = D;
+				D.N_CH_Next = C.N_CH_Next;
+				C.N_CH_Next = null;
+
+				// CH_Prev
+				if (C.CH_Prev == null) N.First_CN = D;
+				else C.N_CH_Prev.N_CH_Next = D;
+				D.N_CH_Prev = C.N_CH_Prev;
+				C.N_CH_Prev = null;
+			}
+			
+			// * * C D * --> * * D C *
+			D.N_TN_Next = C;
+			C.N_TN_Prev = D;
+			
+			// * * C D E --> * * D C E
+			// * * C D - --> * * D C -
+			C.N_TN_Next = E;
+			if (E != null) 	E.N_TN_Prev = C;
+			
 			C.Sort();
+			
 		}
 		
 		// (I.3) * B C * * --> * C B * *
-		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Time() < B.Time()))) {
-			if (A == null) C.N.First_CN = C;
-			else A.N_Next = C;
-			B.N_Prev = C;
-			B.CH_Next = D;
-			C.N_Next = B;
-			C.N_Prev = A;
-			if (D != null) D.N_Prev = C;
+		else if (B != null && C.Time() < B.Time()) {
+			// (I.3.a) - B C * * --> - C B * *
+			if (A == null) {
+				// B is top of TN list, C becomes new top of list
+				// C needs to be connected to the CH list
+
+				// CH_Next
+				if (B.CH_Next != null) B.N_CH_Next.N_CH_Prev = C;
+				C.N_CH_Next = B.N_CH_Next;
+				B.N_CH_Next = null;
+
+				// CH_Prev
+				if (B.CH_Prev == null) N.First_CN = C;
+				else B.N_CH_Prev.N_CH_Next = C;
+				C.N_CH_Prev = B.N_CH_Prev;
+				B.N_CH_Prev = null;
+				
+			} 
+					
+
+			// * B C * * --> * C B * *
+			C.N_TN_Next = B;
+			C.N_TN_Prev = A;
+			B.N_TN_Next = D;
+			B.N_TN_Prev = C;
+			if (A != null)	A.N_TN_Next = C;
+			if (D != null)	D.N_TN_Prev = B;
 
 			C.Sort();
+
+			
 		}
 		
+		// [II] Sort by Channel
+		
+		// [III] Continue Sort
+
 	}
 	
 	// Main method
@@ -221,13 +270,21 @@ public class Charge_Node {
 		if (Tags.contains("DEBUG") && !Tags.contains("HIDE_CN")) {
 
 			Print_Header();
-			System.out.print(" N_Next: ");
-			if (N_Next == null) System.out.print(" ---");
-			else N_Next.Print_Header();
+			System.out.print(" N_CH_Next: ");
+			if (N_CH_Next == null) System.out.print(" ---");
+			else N_CH_Next.Print_Header();
 			Print_Header();
-			System.out.print(" N_Prev: ");
-			if (N_Prev == null) System.out.print(" ---");
-			else N_Prev.Print_Header();
+			System.out.print(" N_CH_Prev: ");
+			if (N_CH_Prev == null) System.out.print(" ---");
+			else N_CH_Prev.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Next: ");
+			if (N_TN_Next == null) System.out.print(" ---");
+			else N_TN_Next.Print_Header();
+			Print_Header();
+			System.out.print(" N_TN_Prev: ");
+			if (N_TN_Prev == null) System.out.print(" ---");
+			else N_TN_Prev.Print_Header();
 		}
 		
 	}

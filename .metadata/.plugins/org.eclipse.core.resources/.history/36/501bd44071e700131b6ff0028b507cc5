@@ -162,13 +162,13 @@ public class Neuron {
 		if (CN == null) return null;
 		
 		// Search by channel
-		while ((CN != null) && (CN.CH.ID <= CH.ID || (CN.CH.ID == CH.ID && CN.TN.Time <= TN.Time))) 
-		{
+		while (CN != null && (CN.CH.ID <= CH.ID) && (CN.TN.Time <= TN.Time)) {
 			if (CN.CH.ID == CH.ID && CN.TN.Time == TN.Time) return CN;
 			CN = CN.N_Next;		
 		}
 		
 		return null;
+
 	}
 	
 	public Charge_Node Get_CN(Time_Node TN, Channel CH) {
@@ -182,10 +182,6 @@ public class Neuron {
 		CN.TN = TN;
 		CN.CH = CH;
 		
-		if (First_CN != null) {
-			First_CN.N_Prev = CN;
-			CN.N_Next = First_CN;
-		}
 		First_CN = CN;
 		CN.Sort();
 		
