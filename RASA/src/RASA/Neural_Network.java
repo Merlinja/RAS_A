@@ -5,6 +5,13 @@
 //	Overview: The main class, acquires input, analyzes input, generates a decision, and
 //		updates connections / associations.
 //
+//	Primary Actions:
+//		1. Process Input
+//		2. Make Decision
+//			- Add outputs as inputs
+//		3. Advance Clock / Cycle
+//			- Make bonds
+//
 //==========================================================================================
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,6 +68,9 @@ public class Neural_Network {
 	public Channel Default_Input_CH;
 	public Channel Default_Logic_CH;
 	public Channel Default_Bonding_CH;
+	
+	// Synapses
+	List<Synapse> S_List = new ArrayList<Synapse>();
 
 	// =====================================================================
 	//
@@ -142,6 +152,9 @@ public class Neural_Network {
 			IC = IC.Next;
 		}
 		
+		// Print Synapses
+		Print_Synapses(Tags);
+		
 		// Print border
 		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
 				&& !Tags.contains("HIDE_NN")) {
@@ -160,6 +173,20 @@ public class Neural_Network {
 		Print_Label();
 	}
 
+	public void Print_Synapses(String Tags) {
+		System.out.print("\n");
+		Print_Header();
+		System.out.print("==================================");
+		Print_Header();
+		System.out.print(" Printing Synapses");
+		Print_Header();
+		System.out.print("----------------------------------");
+		for (int S = 0; S < S_List.size(); S++) {
+			System.out.print("\n");
+			S_List.get(S).Print_Report(Tags);
+		}
+	}
+	
 	//==========================================
 	// Neural Groups
 	//------------------------------------------
@@ -217,6 +244,77 @@ public class Neural_Network {
 	public Internal_Clock Get_Internal_Clock(int Level) {
 		return First_IC;
 	}
+	
+	//==========================================
+	// Synapses
+	//------------------------------------------
+	
+	public void Update_Synapses() {
+		Update_Synapses(Default_Bonding_CH, "ABSOLUTE, DEBUG");
+	}
+	
+	public void Update_Synapses(String Tags) {
+		Update_Synapses(Default_Bonding_CH, Tags);
+	}
+	
+	public void Update_Synapses(Channel CH, String Tags) {
+		// Methods for updating weights
+		// 1: Binary "Absolute"
+		// 2: Take from Short Term "ST"
+		
+		if (Tags.contains("DEBUG")) {
+			System.out.print("\n\n==================================");
+			System.out.print("\n [DEBUG] Updating Synapses");
+			System.out.print("\n----------------------------------\n");
+			System.out.print("\n Tags: " + Tags + "\n");
+		}
+		
+		// Go through every NG as "NG From"
+		for (int NG_From_Itr = 0; NG_From_Itr < NG_List.size(); NG_From_Itr++) {
+			Neural_Group NG_From = NG_List.get(NG_From_Itr);
+			
+			// Go through every available NG as "NG To"
+			for (int NG_To_Itr = 0; NG_To_Itr < NG_List.size(); NG_To_Itr++) {
+				Neural_Group NG_To = NG_List.get(NG_To_Itr);
+			
+				// Go through every N as "N From"
+				for (int N_From_Itr = 0; N_From_Itr < NG_From.N_List.size(); N_From_Itr++) {
+					Neuron N_From = NG_From.N_List.get(N_From_Itr);
+					
+					// Go through every N as "N To"
+					for (int N_To_Itr = 0; N_To_Itr < NG_To.N_List.size(); N_To_Itr++) {
+						Neuron N_To = NG_To.N_List.get(N_To_Itr);
+						if (Tags.contains("DEBUG")) {
+							System.out.print("\n\nATTEMPTING: ");
+							N_From.Get_CN(First_IC.Get_TN(), CH).Print_Header();
+							System.out.print(N_From.Get_CN(First_IC.Get_TN(), CH).Current_Charge);
+							N_To.Get_CN(First_IC.Get_TN(), CH).Print_Header();
+						}
+						
+						// Don't bond with self
+						if (N_From != N_To) {
+							if (Tags.contains("ABSOLUTE")) {
+								if (N_From.Get_CN(First_IC.Get_TN(), CH).Current_Charge == 1.00) {
+									if (Tags.contains("DEBUG")) {							
+										System.out.print("\n\nUPDATING: ");
+										N_From.Get_CN(First_IC.Get_TN(), CH).Print_Header();
+										N_To.Get_CN(First_IC.Get_TN(), CH).Print_Header();
+									}
+									Synapse S = N_From.Get_Synapse(N_To);
+									S.LT_Weight++;
+									if (N_To.Get_CN(First_IC.Get_TN(), CH).Current_Charge == 1.00) {
+										S.LT_Strength += 1.00;
+									}
+								}
+							}
+						}
+					} // [END] Go through every N as "N To"
+				} // [END] Go through every N as "N From"
+			} // [END] Go through every available NG as "NG To"
+		} // [END] Go through every NG as "NG From"
+		
+	}
+	
 }
 
 //------------------------------------------------------------------------------------------

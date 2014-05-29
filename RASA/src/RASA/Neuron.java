@@ -17,6 +17,10 @@
 // Package
 package RASA;
 
+// Includes
+import java.util.ArrayList;
+import java.util.List;
+
 //------------------------------------------------------------------------------------------
 //
 //	[END] Includes, Packages, Headers
@@ -43,6 +47,10 @@ public class Neuron {
 	Channel Seeded_CH;
 	public String Alias;
 	public Charge_Node First_CN;
+	
+	// Synapses
+	List<Synapse> In_Synapses = new ArrayList<Synapse>();
+	List<Synapse> Out_Synapses = new ArrayList<Synapse>();
 	
 	//=====================================================================
 	//
@@ -153,7 +161,26 @@ public class Neuron {
 	//------------------------------------------
 	
 	protected Charge_Node Find_CN(Time_Node TN, Channel CH) {
+		Charge_Node CN = First_CN;
+		
+		if (CN == null) return null;
+		
+		// Search by channel
+		while (CN != null && (CN.CH.ID < CH.ID)) {
+			CN = CN.N_CH_Next;		
+		}
+		
+		if (CN == null) return null;
+		else if (CN.CH.ID == CH.ID) {
+			// Search by time node
+			while (CN != null && (CN.TN.Time <= TN.Time)) {
+				if (CN.TN.Time == TN.Time) return CN;
+				CN = CN.N_TN_Next;
+			}
+		} 
+		
 		return null;
+
 	}
 	
 	public Charge_Node Get_CN(Time_Node TN, Channel CH) {
@@ -215,6 +242,39 @@ public class Neuron {
 
 	public void Activate() {
 		
+	}
+	
+	//==========================================
+	// Synapses
+	//------------------------------------------
+	
+	public Synapse Create_Synapse(Neuron To) {
+
+		Synapse S = new Synapse(To, this);
+		Out_Synapses.add(S);
+		To.In_Synapses.add(S);
+		Parent_NN().S_List.add(S);
+		
+		return S;
+	}
+	
+	public Synapse Get_Synapse(Neuron To) {
+		
+		// Check for existing synapses
+		Synapse S = Find_Synapse(To);
+		if (S != null) return S;
+		
+		return Create_Synapse(To);
+	}
+	
+	public Synapse Find_Synapse(Neuron To) {
+		// Check for existing synapses
+		for (int S_Itr = 0; S_Itr < Out_Synapses.size(); S_Itr++) {
+			if (Out_Synapses.get(S_Itr).To == To) {
+				return Out_Synapses.get(S_Itr);
+			}
+		}
+		return null;
 	}
 	
 }

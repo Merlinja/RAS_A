@@ -42,7 +42,7 @@ public class Test_1 {
 		Neural_Network NN = new Neural_Network();
 		Neural_Group NG1 = NN.New_Neural_Group();
 		Neural_Group NG2 = NN.New_Neural_Group();
-		NN.Print_Report("SHORT");
+		//NN.Print_Report("SHORT");
 		NG1.Add_Feeder(NG2);
 		NG1.Add_Feeder(NG1);
 		Channel CH1 = NN.New_Channel();
@@ -54,11 +54,15 @@ public class Test_1 {
 		NG1.Add_N_Type("AND");
 		NG1.Add_N_Type("INPUT");
 		NN.Reward_Driver_N.Activate();
+		NN.Punish_Driver_N.Activate();
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(2), CH1);
+		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(1), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
 
+		NN.Update_Synapses("ABSOLUTE, DEBUG");
+		
 		NN.Print_Report("FULL");
 		if (NG1 == NG2) return;
 	}

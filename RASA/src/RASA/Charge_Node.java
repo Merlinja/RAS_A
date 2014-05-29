@@ -168,6 +168,9 @@ public class Charge_Node {
 		}
 		
 		// [II] Sort by Channel
+		
+		// [III] Continue Sort
+		C.Sort();
 	}
 	
 	// Main method
