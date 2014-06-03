@@ -1,0 +1,266 @@
+//==========================================================================================
+//
+//	Neuron
+//
+//	Overview: The "what" of the neural network, each neuron is a logical statement or idea,
+//		each idea is associated with other ideas (how likely A is true if B is true).
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+// Includes
+import java.util.ArrayList;
+import java.util.List;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Neuron Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Neuron {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	protected int ID;
+	protected Neural_Group Parent_NG;
+	protected Channel Seeded_CH;
+	public String Alias;
+	public Charge_Node First_CN;
+	
+	// Synapses
+	List<Synapse> In_Synapses = new ArrayList<Synapse>();
+	List<Synapse> Out_Synapses = new ArrayList<Synapse>();
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	protected Neuron() {
+		ID = 0;
+		Seeded_CH = null;
+		Parent_NG = null;
+		Alias = "New Neuron";
+		First_CN = null;
+	}
+	
+	public Neuron(int Given_ID, Neural_Group Given_NG){
+		super();
+		ID = Given_ID;
+		Parent_NG = Given_NG;
+	}
+
+	public Neural_Network Get_NN() {
+		return Parent_NG.Parent_NN;
+	}
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_Neuron")) {
+			// Print border
+			System.out.print("\n");
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Neuron: " + Alias);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+			// Channel seeding
+			if (Seeded_CH != null) {
+				Print_Header();
+				System.out.print("Seeding Channel:");
+				Seeded_CH.Print_Label();
+			}
+			
+			// Print Logic
+			if (Complexity() > 1) {
+				Print_Header();
+				System.out.print("Logical blueprint:");
+				System.out.print("\n");
+				Print_Logic();
+				System.out.print("\n");
+			}
+		}
+		
+		// Print charge nodes
+		if (Tags.contains("FULL")) {
+			Print_Header();
+			System.out.print(" << Charges >>");
+			Print_Charges(Tags);
+		}
+
+	}
+
+	protected void Print_Indent(int Indent) {
+		System.out.print("\n");
+		for (int i=0; i<Indent; i++)
+			System.out.print(" ");
+	}
+	
+	public void Print_Label() {
+		System.out.print("[N:" + ID + "]");
+	}
+
+	public void Print_Header() {
+		Parent_NG.Print_Header();
+		Print_Label();
+	}
+	
+	public void Print_Header(int Depth) {
+		if (Depth >= 0) {
+			Parent_NG.Print_Header(Depth-1);
+			Print_Label();
+		}
+	}
+	
+	public void Print_Logic(int Indent) {
+		Print_Indent(Indent);
+		System.out.print(Alias);
+	}
+	
+	public void Print_Charges(String Tags) {
+		Charge_Node CN = First_CN;
+		while (CN != null) {
+			CN.Print_Report(Tags);
+			CN = CN.N_Next;
+		}
+	}
+	
+	public void Print_Logic() {
+		Print_Logic(0);
+	}
+	
+	
+	
+	public int Complexity(){
+		return 1;
+	}
+	
+	//==========================================
+	// Charge Nodes
+	//------------------------------------------
+	
+	protected Charge_Node Find_CN(Time_Node TN, Channel CH) {
+		Charge_Node CN = First_CN;
+		
+		if (CN == null) return null;
+		
+		// Search by channel
+		while ((CN != null) && (CN.CH.ID <= CH.ID || (CN.CH.ID == CH.ID && CN.Actual_Time() <= TN.Actual_Time()))) 
+		{
+			if (CN.CH.ID == CH.ID && CN.Actual_Time() == TN.Actual_Time()) return CN;
+			CN = CN.N_Next;		
+		}
+		
+		return null;
+	}
+	
+	public Charge_Node Get_CN(Time_Node TN, Channel CH) {
+		// Search
+		Charge_Node CN = Find_CN(TN, CH);
+		if (CN != null) return CN;
+		
+		// Create new charge node
+		CN = new Charge_Node(TN, CH, this, Get_NN());
+		
+		if (First_CN != null) {
+			First_CN.N_Prev = CN;
+			CN.N_Next = First_CN;
+		}
+		First_CN = CN;
+		CN.N_Sort();
+		
+		return CN;
+	}
+
+	public void Activate() {
+		
+	}
+	
+
+	public double Active_Charge (Time_Node TN, Channel CH) {
+		Charge_Node CN = Get_CN(TN, CH);
+		return CN.Active_Charge();
+	}
+	
+	public double Active_Charge (Channel CH) {
+		return Active_Charge(Get_NN().First_IC.Get_TN(), CH);
+	}
+	
+	//==========================================
+	// Synapses
+	//------------------------------------------
+	
+	public Synapse Create_Synapse(Neuron To) {
+
+		Synapse S = new Synapse(To, this);
+		Out_Synapses.add(S);
+		To.In_Synapses.add(S);
+		Get_NN().S_List.add(S);
+		
+		return S;
+	}
+	
+	public Synapse Get_Synapse(Neuron To) {
+		
+		// Check for existing synapses
+		Synapse S = Find_Synapse(To);
+		if (S != null) return S;
+		
+		return Create_Synapse(To);
+	}
+	
+	public Synapse Find_Synapse(Neuron To) {
+		// Check for existing synapses
+		for (int S_Itr = 0; S_Itr < Out_Synapses.size(); S_Itr++) {
+			if (Out_Synapses.get(S_Itr).To() == To) {
+				return Out_Synapses.get(S_Itr);
+			}
+		}
+		return null;
+	}
+	
+	//==========================================
+	// Channels
+	//------------------------------------------
+	public Channel Seed_Channel() {
+		if (Seeded_CH != null) return Seeded_CH;
+		return Get_NN().New_Channel(this);
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Neuron Class
+//
+//==========================================================================================

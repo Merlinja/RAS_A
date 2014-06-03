@@ -40,11 +40,9 @@ public class Synapse {
 	//
 	//---------------------------------------------------------------------
 	
-	Neuron To;
-	Neuron From;
+	private Neuron To;
+	private Neuron From;
 	public Neural_Network NN;
-	public double Strength;
-	public double Weight;
 	
 	// Long term
 	public double LT_Strength;
@@ -60,26 +58,22 @@ public class Synapse {
 	//
 	//---------------------------------------------------------------------
 	
-	public Synapse() {
+	// Constructor
+	public Synapse(Neuron N_To, Neuron N_From) {
 		// Initialize variables
-		To = null;
-		From = null;
-		NN = null;
-		Strength = 0.0;
-		Weight = 0.0;
+		super();
+		To = N_To;
+		From = N_From;
+		NN = N_From.Get_NN();
+		
 		LT_Strength = 0.0;
 		LT_Weight = 0.0;
 		LT_Strength = 0.0;
 		LT_Weight = 0.0;
 	}
 	
-	public Synapse(Neuron N_To, Neuron N_From) {
-		// Initialize variables
-		super();
-		To = N_To;
-		From = N_From;
-		NN = N_From.Parent_NN();
-	}
+	public Neuron To(){return To;}
+	public Neuron From(){return From;}
 
 	//==========================================
 	// Reports
@@ -100,11 +94,9 @@ public class Synapse {
 
 	public void Print_Header() {
 		System.out.print("\n");
-		From.Parent_NG.Print_Label();
-		From.Print_Label();
+		From.Print_Header(2);
 		System.out.print(" --> ");
-		To.Parent_NG.Print_Label();
-		To.Print_Label();
+		To.Print_Header(2);
 	}
 
 }

@@ -69,8 +69,6 @@ public class Internal_Clock {
 		if (Current_TN == null) {
 			// Create new nodes
 			Current_TN = new Time_Node(Current_Time, this);
-			Current_TN.Time = Current_Time;
-			Current_TN.Parent_IC = this;
 			First_TN = Current_TN;
 			Last_TN = Current_TN;
 		}
@@ -78,8 +76,8 @@ public class Internal_Clock {
 		// Find start point to search
 		Time_Node TN = Current_TN;
 		int Displacement = 0;
-		while (TN.Time != Time) {
-			if (TN.Time < Time) {
+		while (TN.Actual_Time() != Time) {
+			if (TN.Actual_Time() < Time) {
 				// Search forward
 				Displacement++;
 				

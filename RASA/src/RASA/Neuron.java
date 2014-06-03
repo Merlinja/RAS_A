@@ -42,15 +42,15 @@ public class Neuron {
 	//
 	//---------------------------------------------------------------------
 	
-	int ID;
-	Neural_Group Parent_NG;
-	Channel Seeded_CH;
+	protected int ID;
+	protected Neural_Group Parent_NG;
+	protected Channel Seeded_CH;
 	public String Alias;
 	public Charge_Node First_CN;
 	
 	// Synapses
-	List<Synapse> In_Synapses = new ArrayList<Synapse>();
-	List<Synapse> Out_Synapses = new ArrayList<Synapse>();
+	public List<Synapse> In_Synapses = new ArrayList<Synapse>();
+	public List<Synapse> Out_Synapses = new ArrayList<Synapse>();
 	
 	//=====================================================================
 	//
@@ -58,15 +58,21 @@ public class Neuron {
 	//
 	//---------------------------------------------------------------------
 	
-	public Neuron() {
+	protected Neuron() {
 		ID = 0;
 		Seeded_CH = null;
 		Parent_NG = null;
 		Alias = "New Neuron";
 		First_CN = null;
 	}
+	
+	public Neuron(int Given_ID, Neural_Group Given_NG){
+		super();
+		ID = Given_ID;
+		Parent_NG = Given_NG;
+	}
 
-	public Neural_Network Parent_NN() {
+	public Neural_Network Get_NN() {
 		return Parent_NG.Parent_NN;
 	}
 	
@@ -129,6 +135,11 @@ public class Neuron {
 		Print_Label();
 	}
 	
+	public void Print_Header(int Depth) {
+		if (Depth > 1) Parent_NG.Print_Header(Depth-1);
+		if (Depth > 0) Print_Label();
+	}
+	
 	public void Print_Logic(int Indent) {
 		Print_Indent(Indent);
 		System.out.print(Alias);
@@ -162,9 +173,9 @@ public class Neuron {
 		if (CN == null) return null;
 		
 		// Search by channel
-		while ((CN != null) && (CN.CH.ID <= CH.ID || (CN.CH.ID == CH.ID && CN.TN.Time <= TN.Time))) 
+		while ((CN != null) && (CN.CH.ID <= CH.ID || (CN.CH.ID == CH.ID && CN.Actual_Time() <= TN.Actual_Time()))) 
 		{
-			if (CN.CH.ID == CH.ID && CN.TN.Time == TN.Time) return CN;
+			if (CN.CH.ID == CH.ID && CN.Actual_Time() == TN.Actual_Time()) return CN;
 			CN = CN.N_Next;		
 		}
 		
@@ -177,23 +188,46 @@ public class Neuron {
 		if (CN != null) return CN;
 		
 		// Create new charge node
-		CN = new Charge_Node();
-		CN.N = this;
-		CN.TN = TN;
-		CN.CH = CH;
+		CN = new Charge_Node(TN, CH, this, Get_NN());
 		
 		if (First_CN != null) {
 			First_CN.N_Prev = CN;
 			CN.N_Next = First_CN;
 		}
 		First_CN = CN;
-		CN.Sort();
+		CN.Sort_N();
 		
 		return CN;
 	}
 
 	public void Activate() {
 		
+	}
+	
+
+	public double Active_Charge (Time_Node TN, Channel CH) {
+		Charge_Node CN = Get_CN(TN, CH);
+		return CN.Active_Charge();
+	}
+	
+	public double Active_Charge (Channel CH) {
+		return Active_Charge(Get_NN().First_IC.Get_TN(), CH);
+	}
+	
+	public void Get_Claims(Charge_Node CN) {
+		double Claim = 0.0;
+		for (int S_Itr = 0; S_Itr < In_Synapses.size(); S_Itr++) {
+			Synapse S = In_Synapses.get(S_Itr);
+			// LT Claims
+			Claim = S.LT_Strength * S.LT_Weight;
+			if (Claim > CN.Highest_Claim) CN.Highest_Claim = Claim;
+			if (Claim < CN.Highest_Claim) CN.Lowest_Claim = Claim;
+			// ST Claims
+			Claim = S.ST_Strength * S.ST_Weight;
+			if (Claim > CN.Highest_Claim) CN.Highest_Claim = Claim;
+			if (Claim < CN.Highest_Claim) CN.Lowest_Claim = Claim;
+
+		}
 	}
 	
 	//==========================================
@@ -205,7 +239,7 @@ public class Neuron {
 		Synapse S = new Synapse(To, this);
 		Out_Synapses.add(S);
 		To.In_Synapses.add(S);
-		Parent_NN().S_List.add(S);
+		Get_NN().S_List.add(S);
 		
 		return S;
 	}
@@ -222,11 +256,19 @@ public class Neuron {
 	public Synapse Find_Synapse(Neuron To) {
 		// Check for existing synapses
 		for (int S_Itr = 0; S_Itr < Out_Synapses.size(); S_Itr++) {
-			if (Out_Synapses.get(S_Itr).To == To) {
+			if (Out_Synapses.get(S_Itr).To() == To) {
 				return Out_Synapses.get(S_Itr);
 			}
 		}
 		return null;
+	}
+	
+	//==========================================
+	// Channels
+	//------------------------------------------
+	public Channel Seed_Channel() {
+		if (Seeded_CH != null) return Seeded_CH;
+		return Get_NN().New_Channel(this);
 	}
 	
 }

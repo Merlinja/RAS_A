@@ -40,12 +40,15 @@ public class Time_Node {
 	//
 	//---------------------------------------------------------------------
 	
-	public int Time;
-	public Internal_Clock Parent_IC;
+	private int Time;
+	private Internal_Clock Parent_IC;
 	
 	// List
 	public Time_Node Next;
 	public Time_Node Prev;
+	
+	// Charge Nodes
+	public Charge_Node First_CN;
 	
 	//=====================================================================
 	//
@@ -59,8 +62,10 @@ public class Time_Node {
 		Next = null;
 		Prev = null;
 		Parent_IC = IC;
+		First_CN = null;
 	}
 
+	public Internal_Clock Get_IC() {return Parent_IC;}
 	
 	//==========================================
 	// Reports
@@ -81,7 +86,12 @@ public class Time_Node {
 			System.out.print("----------------------------------------");
 
 			// Print attributes
-
+			Charge_Node CN = First_CN;
+			while (CN != null) {
+				Print_Header();
+				CN.Print_Header(3);
+				CN = CN.TN_Next;
+			}
 		}
 	}
 
@@ -102,6 +112,19 @@ public class Time_Node {
 		return Time;
 	}
 	
+	public int Relative_Time() {
+		return Time - Parent_IC.Get_TN().Time;
+	}
+	
+	
+	public void Register_CN (Charge_Node CN) {
+		if (First_CN != null) {
+			First_CN.TN_Prev = CN;
+			CN.TN_Next = First_CN;
+		}
+		First_CN = CN;
+		CN.Sort_TN();
+	}
 }
 
 //------------------------------------------------------------------------------------------

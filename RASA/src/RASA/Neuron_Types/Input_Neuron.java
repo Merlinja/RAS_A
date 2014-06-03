@@ -19,6 +19,7 @@ package RASA.Neuron_Types;
 // Imports
 import RASA.Channel;
 import RASA.Charge_Node;
+import RASA.Neural_Group;
 import RASA.Neuron;
 import RASA.Time_Node;
 
@@ -39,21 +40,27 @@ public class Input_Neuron extends Neuron {
 
 	boolean Active;
 	
-	public Input_Neuron() {
+	protected Input_Neuron() {
 		super();
 		Active = false;
 	}
+	
+	public Input_Neuron(int Given_ID, Neural_Group Given_NG) {
+		super(Given_ID, Given_NG);
+	}
 
 	public void Activate() {
-		Activate(Parent_NN().Default_Input_CH);
+		Activate(Get_NN().Default_Input_CH);
 	}
 	
 	public void Activate(Channel CH) {
-		Time_Node TN = Parent_NN().First_IC.Get_TN();
+		Time_Node TN = Get_NN().First_IC.Get_TN();
 		Charge_Node CN = Get_CN(TN, CH);
 		CN.Current_Charge = 1.0;
 		CN.Current_Weight = 1.0;
 		Active = true;
+		
+		CN.Update();
 	}
 	
 	public void Print_Report(String Tags) {

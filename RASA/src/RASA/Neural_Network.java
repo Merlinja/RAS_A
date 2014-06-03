@@ -71,6 +71,13 @@ public class Neural_Network {
 	
 	// Synapses
 	List<Synapse> S_List = new ArrayList<Synapse>();
+	
+	// Charge nodes
+	public Charge_Node First_CN;
+	
+	// Processing variables
+	public int Default_Input_Cycles;
+	public int Default_Output_Cycles;
 
 	// =====================================================================
 	//
@@ -83,6 +90,7 @@ public class Neural_Network {
 		Alias = "New NN";
 		Next_NG_ID = 1;
 		Next_CH_ID = 1;
+		First_CN = null;
 		
 		// Construct default channels
 		Default_Input_CH = New_Channel();
@@ -111,6 +119,10 @@ public class Neural_Network {
 		First_IC = new Internal_Clock();
 		First_IC.Parent_NN = this;
 		First_IC.Alias = "First Clock";
+		
+		// Processing variables
+		Default_Input_Cycles = 10;
+		Default_Output_Cycles = 10;
 	}
 
 	//==========================================
@@ -124,11 +136,13 @@ public class Neural_Network {
 				&& !Tags.contains("HIDE_NN")) {
 			// Print border
 			Print_Header();
-			System.out.print("========================================");
+			System.out.print("=============================================");
+			Print_Header();
 			Print_Header();
 			System.out.print(" Printing Neural Network: " + Alias);
 			Print_Header();
-			System.out.print("----------------------------------------");
+			Print_Header();
+			System.out.print("---------------------------------------------");
 
 			// Print attributes
 			Print_Header();
@@ -155,11 +169,14 @@ public class Neural_Network {
 		// Print Synapses
 		Print_Synapses(Tags);
 		
+		// Print Update Queue
+		Print_Update_Queue(5);
+		
 		// Print border
 		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
 				&& !Tags.contains("HIDE_NN")) {
 			Print_Header();
-			System.out.print("========================================");
+			System.out.print("=============================================");
 		}
 
 	}
@@ -184,6 +201,25 @@ public class Neural_Network {
 		for (int S = 0; S < S_List.size(); S++) {
 			System.out.print("\n");
 			S_List.get(S).Print_Report(Tags);
+		}
+	}
+	
+	public void Print_Update_Queue(int Max) {
+		System.out.print("\n");
+		Print_Header();
+		System.out.print("==================================");
+		Print_Header();
+		System.out.print(" Printing Update Queue");
+		Print_Header();
+		System.out.print("----------------------------------");
+		Charge_Node CN = First_CN;
+		int Current = 1;
+		while (CN != null && Current <= Max) {
+			Print_Header();
+			System.out.print(" " + CN.Update_Rating() + " ");
+			CN.Print_Header(3);
+			CN = CN.NN_Next;
+			Current++;
 		}
 	}
 	
@@ -234,6 +270,22 @@ public class Neural_Network {
 		return New_CH;
 	}
 	
+	public Channel New_Channel(Neuron N) {
+		
+		// Construct new CH
+		Channel New_CH = new Channel(N);
+		New_CH.Parent_NN = this;
+		New_CH.ID = Next_CH_ID;
+		Next_CH_ID++;
+
+		// Add to list
+		CH_List.add(New_CH);
+
+		// Return newly made NG
+		return New_CH;
+	}
+	
+	
 	//==========================================
 	// Internal Clocks
 	//------------------------------------------
@@ -244,6 +296,10 @@ public class Neural_Network {
 	public Internal_Clock Get_Internal_Clock(int Level) {
 		return First_IC;
 	}
+	
+	public Time_Node Get_TN () {return Get_TN (First_IC);}
+	public Time_Node Get_TN (Internal_Clock IC) {return IC.Get_TN();}
+	public Time_Node Get_TN(int Time, Internal_Clock IC) {return IC.Get_TN(Time);}
 	
 	//==========================================
 	// Synapses
@@ -317,6 +373,32 @@ public class Neural_Network {
 		
 	}
 	
+	//==========================================
+	// Charge Nodes
+	//------------------------------------------
+	public void Register_CN (Charge_Node CN) {
+		CN.NN_Next = First_CN;
+		if (First_CN == null) First_CN = CN;
+		else First_CN.NN_Prev = CN;
+		First_CN = CN;
+	}
+	
+	//==========================================
+	// Primary Procedures TODO
+	//------------------------------------------
+	public void Analyze_Input()	{Analyze_Input(Default_Input_Cycles);};
+	public void Analyze_Input(int Cycles) {
+		
+	}
+	
+	public void Analyze_Output() {Analyze_Output(Default_Output_Cycles);};
+	public void Analyze_Output(int Cycles){
+		
+	}
+	
+	public void Advance_Clock(){
+		First_IC.Advance_Clock();
+	}
 }
 
 //------------------------------------------------------------------------------------------

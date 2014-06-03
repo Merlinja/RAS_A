@@ -66,6 +66,8 @@ public class Charge_Node {
 	public double Current_Weight;
 	public double Potential_Sum;
 	public double Potential_Weight;
+	public double Highest_Claim;
+	public double Lowest_Claim;
 	
 	// For use in updates
 	public double Charge;
@@ -78,13 +80,11 @@ public class Charge_Node {
 	//---------------------------------------------------------------------
 	
 	// Constructor
-	public Charge_Node() {
-		
-		// Initialize fields
-		TN = null;
-		CH = null;
-		N = null;
-		NN = null;
+	public Charge_Node(Time_Node tn, Channel ch, Neuron n, Neural_Network nn){
+		TN = tn;
+		CH = ch;
+		N = n;
+		NN = nn;
 		
 		// Unordered lists
 		TN_Next = null;
@@ -103,22 +103,51 @@ public class Charge_Node {
 		Current_Weight = 0.0;
 		Potential_Sum = 0.0;
 		Potential_Weight = 0.0;
+		Highest_Claim = 0.0;
+		Lowest_Claim = 0.0;
 		
 		Charge = 0.0;
 		Weight = 0.0;
+		
+		Register();
 	}
 
 	// Info
+	
+	// Registers CN in neural network's queue
+	public void Register() {
+		// Neural Network
+		if (NN.First_CN != this && NN_Prev == null) {
+			NN.Register_CN(this);
+		}
+		// Time Node
+		if (TN.First_CN != this && TN_Prev == null) {
+			TN.Register_CN(this);
+		}
+	}
 	
 	public int Time() {
 		return TN.Actual_Time();
 	}
 	
+	public int Actual_Time() {return TN.Actual_Time();}
+	public int Relative_Time() {return TN.Relative_Time();}
+	
 	public double Update_Rating() {
 		return Stimulation;
 	}
 	
-	public void Sort() {
+	public double Active_Charge() {
+		return Charge;
+	}
+	
+	public double Active_Weight() {
+		return Weight;
+	}
+	
+	
+	
+	public void Sort_N() {
 		// Original order: A B C D E
 		
 		Charge_Node A = null;
@@ -141,10 +170,10 @@ public class Charge_Node {
 			if (E != null) E.N_Prev = C;
 			C.N_Prev = D;
 			D.N_Next = C;
-			D.CH_Prev = B;
+			D.N_Prev = B;
 			if (B == null) C.N.First_CN = D;
 			else B.N_Next = D;
-			C.Sort();
+			C.Sort_N();
 		}
 		
 		// (I.3) * B C * * --> * C B * *
@@ -152,12 +181,82 @@ public class Charge_Node {
 			if (A == null) C.N.First_CN = C;
 			else A.N_Next = C;
 			B.N_Prev = C;
-			B.CH_Next = D;
+			B.N_Next = D;
 			C.N_Next = B;
 			C.N_Prev = A;
-			if (D != null) D.N_Prev = C;
+			if (D != null) D.N_Prev = B;
 
-			C.Sort();
+			C.Sort_N();
+		}
+		
+	}
+	
+	public void Sort_TN() {
+		
+		// Original order: A B C D E
+		Charge_Node A = null;
+		Charge_Node B = TN_Prev;
+		Charge_Node C = this;
+		Charge_Node D = TN_Next;
+		Charge_Node E = null;
+		
+		if (B != null) A = B.TN_Prev;
+		if (D != null) E = D.TN_Next;
+	
+		boolean Swap_Left = false;
+		boolean Swap_Right = false;
+			
+		// - - C - -
+		if (B == null && D == null) {return;}
+		
+		// Neural group | * * C D * --> * * D C *
+		else if (D != null && D.N.Parent_NG.ID < C.N.Parent_NG.ID) Swap_Right = true;
+
+		// Neural group | * B C * * --> * C B * *
+		else if (B != null && C.N.Parent_NG.ID < B.N.Parent_NG.ID) Swap_Left = true;
+
+		// Same Neural groups
+		if (D != null && D.N.Parent_NG.ID == C.N.Parent_NG.ID) {
+			// Neuron | * * C D * --> * * D C *
+			if (D != null && D.N.ID < C.N.ID) Swap_Right = true;
+			else if (D != null && D.N.ID == C.N.ID) {
+				// Channel | * * C D * --> * * D C *
+				if (D != null && D.CH.ID < C.CH.ID) Swap_Right = true;
+			}
+		}
+				
+		if ( B != null && C.N.Parent_NG.ID == B.N.Parent_NG.ID) {
+			// Neuron | * B C * * --> * C B * *
+			if (B != null && C.N.ID < B.N.ID) Swap_Left = true;
+			else if (B != null && C.N.ID == B.N.ID) {
+				// Channel | * B C * * --> * C B * *
+				if (B != null && C.CH.ID < B.CH.ID) Swap_Left = true;
+			}
+		}
+		
+	
+		
+		// * B C * * --> * C B * *
+		if (Swap_Left) {
+			if (A == null) TN.First_CN = C;
+			else A.TN_Next = C;
+			B.TN_Prev = C;
+			B.TN_Next = D;
+			C.TN_Next = B;
+			C.TN_Prev = A;
+			if (D != null) D.TN_Prev = B;
+			C.Sort_TN();
+		} 
+		// * * C D * --> * * D C *
+		else if (Swap_Right) {
+			if (B == null) TN.First_CN = D;
+			else B.TN_Next = D;
+			C.TN_Next = E;
+			C.TN_Prev = D;
+			D.TN_Next = C;
+			D.TN_Prev = B;
+			if (E != null) E.TN_Prev = C;
+			C.Sort_TN();
 		}
 		
 	}
@@ -168,11 +267,17 @@ public class Charge_Node {
 		// Reset variables
 		Potential_Sum = 0.0;
 		Potential_Weight = 0.0;
+		Highest_Claim = 0.0;
+		Lowest_Claim = 0.0;
 		Reset_Working();
+		
+		// Get claims
+		N.Get_Claims(this);
+		
 		
 		// Long Term
 		Reset_Working();
-		// Neuron.LT_Analysis(this);
+		// Neuron.Analyze_LT(this);
 		Potential_Weight += Weight * CH.LT_Weight;
 		Potential_Sum += Charge * Weight * CH.LT_Weight;
 		
@@ -202,6 +307,28 @@ public class Charge_Node {
 		
 		Current_Charge = Potential_Sum / Potential_Weight;
 		Current_Weight = Potential_Weight;
+		
+		// Modify update ratings of connected neurons
+		// Long Term & short term
+		for (int LT = 0; LT < N.Out_Synapses.size(); LT++) {
+			Synapse S = N.Out_Synapses.get(LT);
+			double Claim = 0.0;
+			// LT Claims
+			Claim = S.LT_Strength * S.LT_Weight;
+			Claim *= (S.To().Active_Charge(TN, CH) - (Active_Charge() * Active_Weight()));
+			S.To().Get_CN(TN, CH).Stimulation += Claim;
+			// ST Claims TODO
+
+
+		}
+		// Logic TODO
+		// Meta TODO
+		// Channel Feeds TODO
+		
+		// Reset Update Rating
+		Stimulation = 0.0;
+		
+		// Sort in update queue TODO
 	}
 	
 	void Reset_Working() {
@@ -234,6 +361,12 @@ public class Charge_Node {
 
 	public void Print_Header() {
 		N.Print_Header();
+		CH.Print_Label();
+		TN.Print_Label();
+	}
+	
+	public void Print_Header(int Depth) {
+		if (Depth > 1) N.Print_Header(Depth-1);
 		CH.Print_Label();
 		TN.Print_Label();
 	}

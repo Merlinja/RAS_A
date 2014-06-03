@@ -51,14 +51,14 @@ public class Neural_Group {
 	public int ID;
 
 	// Feeding groups
-	List<Neural_Group> Feed_To = new ArrayList<Neural_Group>();
-	List<Neural_Group> Feed_From = new ArrayList<Neural_Group>();
+	private List<Neural_Group> Feed_To = new ArrayList<Neural_Group>();
+	private List<Neural_Group> Feed_From = new ArrayList<Neural_Group>();
 	
 	// Neurons
-	int Next_N_ID;
-	int Max_N_Complexity; // Max complexity of constructed neurons
-	List<String> N_Types = new ArrayList<String>();
-	List<Neuron> N_List = new ArrayList<Neuron>();
+	private int Next_N_ID;
+	private int Max_N_Complexity; // Max complexity of constructed neurons
+	private List<String> N_Types = new ArrayList<String>();
+	public List<Neuron> N_List = new ArrayList<Neuron>();
 
 	//=====================================================================
 	//
@@ -96,22 +96,27 @@ public class Neural_Group {
 			
 			// Print construction info
 			
-			// Go through feeding
-			if (Feed_From.size() + Feed_To.size() > 0) {
-				Print_Header();
-				Print_Header();
-				System.out.print(" Feeding:");
-			}
+
 			// Print feeding from info
 			for (int F = 0; F < Feed_From.size(); F++) {
+				if (F == 0) {
+					Print_Header();
+					Print_Header();
+					System.out.print(" Feeding From:");
+				}
 				Print_Header();
-				System.out.print(" <-- \"" + Feed_From.get(F).Alias + "\" ");
+				System.out.print("   - \"" + Feed_From.get(F).Alias + "\" ");
 				Feed_From.get(F).Print_Label();
 			}
 			// Print feeding to info
 			for (int F = 0; F < Feed_To.size(); F++) {
+				if (F == 0) {
+					Print_Header();
+					Print_Header();
+					System.out.print(" Feeding To:");
+				}
 				Print_Header();
-				System.out.print(" --> \"" + Feed_To.get(F).Alias + "\" ");
+				System.out.print("   - \"" + Feed_To.get(F).Alias + "\" ");
 				Feed_To.get(F).Print_Label();
 			}
 			// Print neuron types
@@ -149,17 +154,27 @@ public class Neural_Group {
 	public void Print_Label() {
 		System.out.print("[NG:" + ID + "]");
 	}
+	
 	public void Print_Header() {
 		Parent_NN.Print_Header();
 		Print_Label();
+	}
+	public void Print_Header(int Depth) {
+		if (Depth > 1) Parent_NN.Print_Header();
+		if (Depth > 0) Print_Label();
 	}
 
 	//==========================================
 	// Neuron Management
 	//------------------------------------------
 	
+	private int Generate_Next_N_ID (){
+		return Next_N_ID++;
+	}
+	
 	public void Add_Feeder(Neural_Group New_Feeder) {
-		// TODO check for redundancies, already exists
+		for (int NG = 0; NG < Feed_From.size(); NG++)
+			if (Feed_From.get(NG) == New_Feeder) return;
 		if (New_Feeder == null) return;
 		Feed_From.add(New_Feeder);
 		New_Feeder.Feed_To.add(this);
@@ -167,13 +182,15 @@ public class Neural_Group {
 	
 	// Adds a neuron type for construction
 	public void Add_N_Type(String New_Type) {
-		// TODO check for redundancies, already exists
+		for (int NT = 0; NT < N_Types.size(); NT++) {
+			if (N_Types.get(NT).equals(New_Type)) return;
+		}
 		if (New_Type == null) return;
 		N_Types.add(New_Type);
 	}
 	
 	// Checks whether valid neuron type
-	boolean Valid_N_Type (String N_Type) {
+	private boolean Valid_N_Type (String N_Type) {
 		for (int NT = 0; NT < N_Types.size(); NT++) {
 			if (N_Types.get(NT).equals(N_Type)) return true;
 		}
@@ -186,20 +203,29 @@ public class Neural_Group {
 		Neuron N;
 		switch (Type) {
 			case "INPUT": case "SENSOR":
-				N = new Input_Neuron();
+				N = new Input_Neuron(Generate_Next_N_ID(), this);
 				break;
 			default:
-				N = new Neuron();
+				N = new Neuron(Generate_Next_N_ID(), this);
 				break;	
 		}
 		
 		// Initialize
-		N.Parent_NG = this;
-		N.ID = Next_N_ID;
-		Next_N_ID++;
 		N.Alias = "New " + Type + " Neuron";
 		N_List.add(N);
 		return N;
+	}
+	
+	public boolean Feeds_From (Neural_Group NG) {
+		for (int ng = 0; ng < Feed_From.size(); ng++)
+			if (Feed_From.get(ng) == NG) return true;
+		return false;
+	}
+	
+	public boolean Feeds_To (Neural_Group NG) {
+		for (int ng = 0; ng < Feed_To.size(); ng++)
+			if (Feed_To.get(ng) == NG) return true;
+		return false;
 	}
 	
 }

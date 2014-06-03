@@ -9,7 +9,7 @@ public class Channel {
 	String Alias;
 	Neural_Network Parent_NN;
 	boolean Active;
-	Neuron Seed;
+	private Neuron Seed;
 	
 	// Source weights
 	double LT_Weight; // Long term synapses
@@ -40,6 +40,11 @@ public class Channel {
 		CH_Weight = 0.0;
 	}
 	
+	public Channel(Neuron N) {
+		super();
+		Seed = N;
+	}
+	
 	// Reports
 	public void Print_Report(String Tags) {
 
@@ -61,6 +66,12 @@ public class Channel {
 				System.out.print(" ACTIVE");
 			else
 				System.out.print(" INACTIVE");
+			if (Seed != null) {
+				Print_Header();
+				System.out.print(" Seeded by: ");
+				Seed.Print_Label();
+				System.out.print(" " + Seed.Alias);
+			}
 			Print_Header();
 			Print_Header();
 			System.out.print(" Weights:");
@@ -76,26 +87,31 @@ public class Channel {
 			System.out.print("    CH Feed: " + CH_Weight);
 			
 			// Go through feeding
-			if (Feeds_From.size() + Feeds_To.size() > 0) {
-				Print_Header();
-				Print_Header();
-				System.out.print(" Feeding:");
-			}
 			for (int CH = 0; CH < Feeds_From.size(); CH++) {
+				if (CH == 0) {
+					Print_Header();
+					Print_Header();
+					System.out.print(" Feeds From Channels:");
+				}
 				Print_Header();
-				System.out.print(" <-- \"" + Feeds_From.get(CH).Alias + "\" ");
+				System.out.print("   - \"" + Feeds_From.get(CH).Alias + "\" ");
 				Feeds_From.get(CH).Print_Label();
 			}
 			for (int CH = 0; CH < Feeds_To.size(); CH++) {
+				if (CH == 0) {
+					Print_Header();
+					Print_Header();
+					System.out.print(" Feeds To Channels:");
+				}
 				Print_Header();
-				System.out.print(" --> \"" + Feeds_To.get(CH).Alias + "\" ");
+				System.out.print("   - \"" + Feeds_To.get(CH).Alias + "\" ");
 				Feeds_To.get(CH).Print_Label();
 			}
-			if (Feeds_From.size() + Feeds_To.size() > 0) Print_Header();
 			
 			// Go through analyzed channels
 			for (int CH = 0; CH < Analyzes.size(); CH++) {
 				if (CH == 0) {
+					Print_Header();
 					Print_Header();
 					System.out.print(" Channels Analyzed:");
 				}
@@ -108,6 +124,7 @@ public class Channel {
 			if (!Tags.contains("SHORT") && Tags.contains("FULL")) {
 				for (int CH = 0; CH < Analyzed_By.size(); CH++) {
 					if (CH == 0) {
+						Print_Header();
 						Print_Header();
 						System.out.print(" Analyzed By:");
 					}
