@@ -1,0 +1,129 @@
+//==========================================================================================
+//
+//	Time Node
+//
+//	Overview: Component of internal clocks, it holds the records of active neurons during
+//		the cycle associated with the time node.
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+// Includes
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Time_Node Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Time_Node {
+
+	//=====================================================================
+	//
+	// CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	private int Time;
+	private Internal_Clock Parent_IC;
+	
+	// List
+	public Time_Node Next;
+	public Time_Node Prev;
+	
+	// Charge Nodes
+	public Charge_Node First_CN;
+	
+	//=====================================================================
+	//
+	// CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	public Time_Node(int Creation_Time, Internal_Clock IC) {
+		// TODO Auto-generated constructor stub
+		Time = Creation_Time;
+		Next = null;
+		Prev = null;
+		Parent_IC = IC;
+		First_CN = null;
+	}
+
+	public Internal_Clock Get_IC() {return Parent_IC;}
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		// Header + full info
+		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
+				&& !Tags.contains("HIDE_TN")) {
+			// Print border
+			System.out.print("\n");
+			Print_Header();
+			System.out.print("========================================");
+			Print_Header();
+			System.out.print(" Printing Time Node: " + Time);
+			Print_Header();
+			System.out.print("----------------------------------------");
+
+			// Print attributes
+
+		}
+	}
+
+	public void Print_Label() {
+		System.out.print("[TN:" + Time + "]");
+	}
+
+	public void Print_Header() {
+		Parent_IC.Print_Header();
+		Print_Label();
+	}
+
+	//==========================================
+	// Time Values
+	//------------------------------------------
+	
+	public int Actual_Time() {
+		return Time;
+	}
+	
+	public int Relative_Time() {
+		return Time - Parent_IC.Get_TN().Time;
+	}
+	
+	
+	public void Register_CN (Charge_Node CN) {
+		if (First_CN != null) {
+			First_CN.TN_Prev = CN;
+			CN.TN_Next = First_CN;
+		}
+		First_CN = CN;
+		CN.CN_Sort();
+	}
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Time_Node Class
+//
+//==========================================================================================
