@@ -1,0 +1,450 @@
+//==========================================================================================
+//
+//	Charge Node
+//
+//	Overview: Record of a charge for a certain channel at a certain time.
+//
+//	Note: Weights behave like confidence ratings.
+//		Between 0.00 (0%) and 1.00 (100%)
+//
+//		Created and accessed through neurons.
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Charge_Node Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Charge_Node {
+
+	//=====================================================================
+	//
+	// 		CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	// Parent info
+	public Time_Node TN;
+	public Channel CH;
+	public Neuron N;
+	public Neural_Network NN;
+	
+	// Unordered lists
+	public Charge_Node TN_Next;
+	public Charge_Node TN_Prev;
+	public Charge_Node CH_Next;
+	public Charge_Node CH_Prev;
+	
+	// Ordered Lists
+	public Charge_Node NN_Next;
+	public Charge_Node NN_Prev;
+	public Charge_Node N_Next;
+	public Charge_Node N_Prev;
+	
+	// Attributes
+	public double Stimulation;
+	public double Current_Charge;
+	public double Current_Weight;
+	public double Potential_Sum;
+	public double Potential_Weight;
+	public double Highest_Claim;
+	public double Lowest_Claim;
+	private boolean Locked;
+	
+	// For use in updates
+	public double Charge;
+	public double Weight;
+	
+	//=====================================================================
+	//
+	// 		CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	// Constructor
+	public Charge_Node(Time_Node tn, Channel ch, Neuron n, Neural_Network nn){
+		TN = tn;
+		CH = ch;
+		N = n;
+		NN = nn;
+		
+		// Unordered lists
+		TN_Next = null;
+		TN_Prev = null;
+		CH_Next = null;
+		CH_Prev = null;
+		
+		// Ordered lists
+		NN_Next = null;
+		NN_Prev = null;
+		N_Next = null;
+		N_Prev = null;
+		
+		Stimulation = 0.0;
+		Current_Charge = 0.0;
+		Current_Weight = 0.0;
+		Potential_Sum = 0.0;
+		Potential_Weight = 0.0;
+		Highest_Claim = 0.0;
+		Lowest_Claim = 0.0;
+		
+		Charge = 0.0;
+		Weight = 0.0;
+		
+		Locked = false;
+		
+		Register();
+	}
+
+	// Info
+	
+	// Registers CN in neural network's queue
+	public void Register() {
+		// Neural Network
+		if (NN.First_CN != this && NN_Prev == null) {
+			NN.Register_CN(this);
+		}
+		// Time Node
+		if (TN.First_CN != this && TN_Prev == null) {
+			TN.Register_CN(this);
+		}
+	}
+	
+	public int Time() {
+		return TN.Actual_Time();
+	}
+	
+	public int Actual_Time() {return TN.Actual_Time();}
+	public int Relative_Time() {return TN.Relative_Time();}
+	
+	public double Update_Rating() {
+		double Rating = Stimulation;
+		Rating /= Math.max(Math.abs(Relative_Time()), 1);
+		// Rating *= Channel Rating
+		return Rating;
+	}
+	
+	public double Active_Charge() {
+		return Charge;
+	}
+	
+	public double Active_Weight() {
+		return Weight;
+	}
+	
+	
+	
+	public void Sort_N() {
+		// Original order: A B C D E
+		
+		Charge_Node A = null;
+		Charge_Node B = N_Prev;
+		Charge_Node C = this;
+		Charge_Node D = N_Next;
+		Charge_Node E = null;
+		
+		if (B != null) A = B.N_Prev;
+		if (D != null) E = D.N_Next;
+		
+		// [I] Sort by Time node
+		
+		// (I.1) - - C - -
+		if (B == null && D == null) {}
+		
+		// (I.2) * * C D * --> * * D C *
+		else if ((D != null) && ((D.CH.ID < C.CH.ID) || (D.CH.ID == C.CH.ID && D.Time() < C.Time()))) {
+			C.N_Next = E;
+			if (E != null) E.N_Prev = C;
+			C.N_Prev = D;
+			D.N_Next = C;
+			D.N_Prev = B;
+			if (B == null) C.N.First_CN = D;
+			else B.N_Next = D;
+			C.Sort_N();
+		}
+		
+		// (I.3) * B C * * --> * C B * *
+		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Time() < B.Time()))) {
+			if (A == null) C.N.First_CN = C;
+			else A.N_Next = C;
+			B.N_Prev = C;
+			B.N_Next = D;
+			C.N_Next = B;
+			C.N_Prev = A;
+			if (D != null) D.N_Prev = B;
+
+			C.Sort_N();
+		}
+		
+	}
+	
+	public void Sort_NN() {
+		// Original order: A B C D E
+		
+		Charge_Node A = null;
+		Charge_Node B = NN_Prev;
+		Charge_Node C = this;
+		Charge_Node D = NN_Next;
+		Charge_Node E = null;
+		
+		if (B != null) A = B.NN_Prev;
+		if (D != null) E = D.NN_Next;
+		
+		// [I] Sort by Update Rating
+		
+		// (I.1) - - C - -
+		if (B == null && D == null) {}
+		
+		// (I.2) * * C D * --> * * D C *
+		else if ((D != null) && (D.Update_Rating() > C.Update_Rating())) {
+			C.NN_Next = E;
+			if (E != null) E.NN_Prev = C;
+			C.NN_Prev = D;
+			D.NN_Next = C;
+			D.NN_Prev = B;
+			if (B == null) C.NN.First_CN = D;
+			else B.NN_Next = D;
+			C.Sort_NN();
+		}
+		
+		// (I.3) * B C * * --> * C B * *
+		else if ((B != null) && (C.Update_Rating() > B.Update_Rating())) {
+			if (A == null) C.NN.First_CN = C;
+			else A.NN_Next = C;
+			B.NN_Prev = C;
+			B.NN_Next = D;
+			C.NN_Next = B;
+			C.NN_Prev = A;
+			if (D != null) D.NN_Prev = B;
+
+			C.Sort_NN();
+		}
+		
+	}
+	
+	public void Sort_TN() {
+		
+		// Original order: A B C D E
+		Charge_Node A = null;
+		Charge_Node B = TN_Prev;
+		Charge_Node C = this;
+		Charge_Node D = TN_Next;
+		Charge_Node E = null;
+		
+		if (B != null) A = B.TN_Prev;
+		if (D != null) E = D.TN_Next;
+	
+		boolean Swap_Left = false;
+		boolean Swap_Right = false;
+			
+		// - - C - -
+		if (B == null && D == null) {return;}
+		
+		// Neural group | * * C D * --> * * D C *
+		else if (D != null && D.N.Parent_NG.ID < C.N.Parent_NG.ID) Swap_Right = true;
+
+		// Neural group | * B C * * --> * C B * *
+		else if (B != null && C.N.Parent_NG.ID < B.N.Parent_NG.ID) Swap_Left = true;
+
+		// Same Neural groups
+		if (D != null && D.N.Parent_NG.ID == C.N.Parent_NG.ID) {
+			// Neuron | * * C D * --> * * D C *
+			if (D != null && D.N.ID < C.N.ID) Swap_Right = true;
+			else if (D != null && D.N.ID == C.N.ID) {
+				// Channel | * * C D * --> * * D C *
+				if (D != null && D.CH.ID < C.CH.ID) Swap_Right = true;
+			}
+		}
+				
+		if ( B != null && C.N.Parent_NG.ID == B.N.Parent_NG.ID) {
+			// Neuron | * B C * * --> * C B * *
+			if (B != null && C.N.ID < B.N.ID) Swap_Left = true;
+			else if (B != null && C.N.ID == B.N.ID) {
+				// Channel | * B C * * --> * C B * *
+				if (B != null && C.CH.ID < B.CH.ID) Swap_Left = true;
+			}
+		}
+		
+	
+		
+		// * B C * * --> * C B * *
+		if (Swap_Left) {
+			if (A == null) TN.First_CN = C;
+			else A.TN_Next = C;
+			B.TN_Prev = C;
+			B.TN_Next = D;
+			C.TN_Next = B;
+			C.TN_Prev = A;
+			if (D != null) D.TN_Prev = B;
+			C.Sort_TN();
+		} 
+		// * * C D * --> * * D C *
+		else if (Swap_Right) {
+			if (B == null) TN.First_CN = D;
+			else B.TN_Next = D;
+			C.TN_Next = E;
+			C.TN_Prev = D;
+			D.TN_Next = C;
+			D.TN_Prev = B;
+			if (E != null) E.TN_Prev = C;
+			C.Sort_TN();
+		}
+		
+	}
+	
+	
+	// Main method
+	public void Update() {
+		
+		// Reset variables
+		Potential_Sum = 0.0;
+		Potential_Weight = 0.0;
+		Highest_Claim = 0.0;
+		Lowest_Claim = 0.0;
+		Reset_Working();
+		
+		// Get claims
+		N.Get_Claims(this);
+		
+		
+		// Long Term
+		Update_LT();
+		
+		// Short Term
+		Reset_Working();
+		// Neuron.ST_Analysis(this);
+		Potential_Weight += Weight * CH.ST_Weight;
+		Potential_Sum += Charge * Weight * CH.ST_Weight;
+		
+		// Logic
+		Reset_Working();
+		// Neuron.LC_Analysis(this);
+		Potential_Weight += Weight * CH.LC_Weight;
+		Potential_Sum += Charge * Weight * CH.LC_Weight;
+		
+		// Meta
+		Reset_Working();
+		// Neuron.MC_Analysis(this);
+		Potential_Weight += Weight * CH.MC_Weight;
+		Potential_Sum += Charge * Weight * CH.MC_Weight;
+		
+		// Channel feeds
+		Reset_Working();
+		// Neuron.CH_Analysis(this);
+		Potential_Weight += Weight * CH.CH_Weight;
+		Potential_Sum += Charge * Weight * CH.CH_Weight;
+		
+		Current_Charge = Potential_Sum / Potential_Weight;
+		Current_Weight = Potential_Weight;
+		
+		// Modify update ratings of connected neurons
+		Update_Connected ();
+		
+		// Reset Update Rating
+		Stimulation = 0.0;
+		
+		// Sort for all lists sorting by update rating
+		Sort_NN();
+	}
+	
+	// Update potential weight from LT
+	private void Update_LT() {
+		Reset_Working();
+		for (int S_Itr = 0; S_Itr < N.In_Synapses.size(); S_Itr++) {
+			Synapse S = N.In_Synapses.get(S_Itr);
+			double S_Strength = Math.min(Highest_Claim, S.LT_Strength);
+			S_Strength *= S.From().Active_Charge(TN, CH);
+			S_Strength *= S.LT_Weight;
+			Weight += S.LT_Weight;
+			Charge += S_Strength;
+		}
+		Potential_Weight += Weight * CH.LT_Weight;
+		Potential_Sum += Charge * Weight * CH.LT_Weight;
+	}
+	
+	// Updates the update ratings of connected neurons
+	private void Update_Connected (){
+		// Long Term & short term
+		for (int LT = 0; LT < N.Out_Synapses.size(); LT++) {
+			Synapse S = N.Out_Synapses.get(LT);
+			double Claim = 0.0;
+			// LT Claims
+			Claim = S.LT_Strength * S.LT_Weight;
+			Claim *= (S.To().Active_Charge(TN, CH) - (Active_Charge() * Active_Weight()));
+			S.To().Get_CN(TN, CH).Stimulation += Claim;
+			// ST Claims TODO
+
+
+		}
+		// Logic TODO
+		// Meta TODO
+		// Channel Feeds TODO
+	}
+	
+	void Reset_Working() {
+		Charge = 0.0;
+		Weight = 0.0;
+	}
+	
+	
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+		Print_Header();
+		System.out.print(" " + (Current_Charge * 100.0) + "% (" + Current_Weight + ")");
+		
+		if (Tags.contains("DEBUG") && !Tags.contains("HIDE_CN")) {
+
+			Print_Header();
+			System.out.print(" N_Next: ");
+			if (N_Next == null) System.out.print(" ---");
+			else N_Next.Print_Header();
+			Print_Header();
+			System.out.print(" N_Prev: ");
+			if (N_Prev == null) System.out.print(" ---");
+			else N_Prev.Print_Header();
+		}
+		
+	}
+
+	public void Print_Header() {
+		N.Print_Header();
+		CH.Print_Label();
+		TN.Print_Label();
+	}
+	
+	public void Print_Header(int Depth) {
+		if (Depth > 1) N.Print_Header(Depth-1);
+		CH.Print_Label();
+		TN.Print_Label();
+	}
+	
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Charge_Node Class
+//
+//==========================================================================================

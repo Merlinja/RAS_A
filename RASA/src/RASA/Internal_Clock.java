@@ -127,7 +127,7 @@ public class Internal_Clock {
 
 		// Header + full info
 		if ((!Tags.contains("SHORT") || Tags.contains("FULL"))
-				&& !Tags.contains("HIDE_CH")) {
+				&& !Tags.contains("HIDE_IC")) {
 			// Print border
 			System.out.print("\n");
 			Print_Header();
@@ -160,9 +160,11 @@ public class Internal_Clock {
 		}
 		
 		// Print Time Nodes
-		Print_Header();
-		Print_Header();
-		System.out.print(" << Time Nodes >> ");
+		if (!Tags.contains("HIDE_IC")){
+			Print_Header();
+			Print_Header();
+			System.out.print(" << Time Nodes >> ");
+		}
 		Time_Node TN = First_TN;
 		while (TN != null) {
 			TN.Print_Report(Tags);

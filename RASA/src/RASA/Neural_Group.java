@@ -143,9 +143,11 @@ public class Neural_Group {
 		}
 		
 		// Print neurons
-		Print_Header();
-		Print_Header();
-		System.out.print(" << Neurons >>");
+		if (!Tags.contains("HIDE_NG")){
+			Print_Header();
+			Print_Header();
+			System.out.print(" << Neurons >>");
+		}
 		for (int N = 0; N < N_List.size(); N++) {
 			N_List.get(N).Print_Report(Tags);
 		}

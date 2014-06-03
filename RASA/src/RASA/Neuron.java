@@ -219,7 +219,7 @@ public class Neuron {
 		for (int S_Itr = 0; S_Itr < In_Synapses.size(); S_Itr++) {
 			Synapse S = In_Synapses.get(S_Itr);
 			// LT Claims
-			Claim = S.LT_Strength * S.LT_Weight;
+			Claim = S.LT_Ratio() * S.LT_Weight();
 			if (Claim > CN.Highest_Claim) CN.Highest_Claim = Claim;
 			if (Claim < CN.Highest_Claim) CN.Lowest_Claim = Claim;
 			// ST Claims

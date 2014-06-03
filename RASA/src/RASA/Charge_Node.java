@@ -62,17 +62,14 @@ public class Charge_Node {
 	
 	// Attributes
 	public double Stimulation;
-	public double Current_Charge;
-	public double Current_Weight;
+	private double Current_Charge;
+	private double Current_Weight;
 	public double Potential_Sum;
 	public double Potential_Weight;
 	public double Highest_Claim;
 	public double Lowest_Claim;
-	
-	// For use in updates
-	public double Charge;
-	public double Weight;
-	
+	private boolean Locked;
+		
 	//=====================================================================
 	//
 	// 		CLASS METHODS
@@ -105,9 +102,8 @@ public class Charge_Node {
 		Potential_Weight = 0.0;
 		Highest_Claim = 0.0;
 		Lowest_Claim = 0.0;
-		
-		Charge = 0.0;
-		Weight = 0.0;
+				
+		Locked = false;
 		
 		Register();
 	}
@@ -134,18 +130,22 @@ public class Charge_Node {
 	public int Relative_Time() {return TN.Relative_Time();}
 	
 	public double Update_Rating() {
-		return Stimulation;
+		double Rating = Stimulation;
+		Rating /= Math.max(Math.abs(Relative_Time()), 1);
+		// Rating *= Channel Rating
+		return Rating;
 	}
 	
 	public double Active_Charge() {
-		return Charge;
+		return Current_Charge;
 	}
 	
 	public double Active_Weight() {
-		return Weight;
+		return Current_Weight;
 	}
 	
-	
+	public void Lock(){Locked = true;}
+	public void Unlock(){Locked = false;}
 	
 	public void Sort_N() {
 		// Original order: A B C D E
@@ -187,6 +187,50 @@ public class Charge_Node {
 			if (D != null) D.N_Prev = B;
 
 			C.Sort_N();
+		}
+		
+	}
+	
+	public void Sort_NN() {
+		// Original order: A B C D E
+		
+		Charge_Node A = null;
+		Charge_Node B = NN_Prev;
+		Charge_Node C = this;
+		Charge_Node D = NN_Next;
+		Charge_Node E = null;
+		
+		if (B != null) A = B.NN_Prev;
+		if (D != null) E = D.NN_Next;
+		
+		// [I] Sort by Update Rating
+		
+		// (I.1) - - C - -
+		if (B == null && D == null) {}
+		
+		// (I.2) * * C D * --> * * D C *
+		else if ((D != null) && (D.Update_Rating() > C.Update_Rating())) {
+			C.NN_Next = E;
+			if (E != null) E.NN_Prev = C;
+			C.NN_Prev = D;
+			D.NN_Next = C;
+			D.NN_Prev = B;
+			if (B == null) C.NN.First_CN = D;
+			else B.NN_Next = D;
+			C.Sort_NN();
+		}
+		
+		// (I.3) * B C * * --> * C B * *
+		else if ((B != null) && (C.Update_Rating() > B.Update_Rating())) {
+			if (A == null) C.NN.First_CN = C;
+			else A.NN_Next = C;
+			B.NN_Prev = C;
+			B.NN_Next = D;
+			C.NN_Next = B;
+			C.NN_Prev = A;
+			if (D != null) D.NN_Prev = B;
+
+			C.Sort_NN();
 		}
 		
 	}
@@ -261,79 +305,117 @@ public class Charge_Node {
 		
 	}
 	
+	
 	// Main method
 	public void Update() {
+		
+		double Weight = 0.0;
+		double Charge = 0.0;
+		
+		// Skip locked charge nodes
+		if (Locked) {
+			Update_Connected ();
+			
+			// Reset Update Rating
+			Stimulation = 0.0;
+			
+			// Sort for all lists sorting by update rating
+			Sort_NN();
+			return;
+		}
 		
 		// Reset variables
 		Potential_Sum = 0.0;
 		Potential_Weight = 0.0;
 		Highest_Claim = 0.0;
 		Lowest_Claim = 0.0;
-		Reset_Working();
 		
 		// Get claims
 		N.Get_Claims(this);
 		
 		
 		// Long Term
-		Reset_Working();
-		// Neuron.Analyze_LT(this);
-		Potential_Weight += Weight * CH.LT_Weight;
-		Potential_Sum += Charge * Weight * CH.LT_Weight;
+		Update_LT();
 		
 		// Short Term
-		Reset_Working();
 		// Neuron.ST_Analysis(this);
 		Potential_Weight += Weight * CH.ST_Weight;
 		Potential_Sum += Charge * Weight * CH.ST_Weight;
 		
 		// Logic
-		Reset_Working();
 		// Neuron.LC_Analysis(this);
 		Potential_Weight += Weight * CH.LC_Weight;
 		Potential_Sum += Charge * Weight * CH.LC_Weight;
 		
 		// Meta
-		Reset_Working();
 		// Neuron.MC_Analysis(this);
 		Potential_Weight += Weight * CH.MC_Weight;
 		Potential_Sum += Charge * Weight * CH.MC_Weight;
 		
 		// Channel feeds
-		Reset_Working();
 		// Neuron.CH_Analysis(this);
 		Potential_Weight += Weight * CH.CH_Weight;
 		Potential_Sum += Charge * Weight * CH.CH_Weight;
 		
-		Current_Charge = Potential_Sum / Potential_Weight;
+		
+		Current_Charge = Potential_Sum * Potential_Weight;
 		Current_Weight = Potential_Weight;
 		
-		// Modify update ratings of connected neurons
+		Set_Active(Current_Charge, Current_Weight);
+		
+	}
+	
+	// Update potential weight from LT
+	private void Update_LT() {
+		double Weight = 0.0;
+		double Charge = 0.0;
+		for (int S_Itr = 0; S_Itr < N.In_Synapses.size(); S_Itr++) {
+			Synapse S = N.In_Synapses.get(S_Itr);
+			double S_Strength = Math.min(Highest_Claim, S.LT_Ratio());
+			S_Strength *= S.From().Active_Charge(TN, CH);
+			S_Strength *= S.LT_Weight();
+			Weight += S.LT_Weight();
+			Charge += S_Strength;
+		}
+		Potential_Weight += Weight * CH.LT_Weight;
+		Potential_Sum += Charge * Weight * CH.LT_Weight;
+	}
+	
+	// Updates the update ratings of connected neurons
+	private void Update_Connected (){
 		// Long Term & short term
 		for (int LT = 0; LT < N.Out_Synapses.size(); LT++) {
 			Synapse S = N.Out_Synapses.get(LT);
 			double Claim = 0.0;
 			// LT Claims
-			Claim = S.LT_Strength * S.LT_Weight;
-			Claim *= (S.To().Active_Charge(TN, CH) - (Active_Charge() * Active_Weight()));
+			Claim = S.LT_Ratio() * S.LT_Weight();
+			Claim *= Math.abs(S.To().Active_Charge(TN, CH) - (Active_Charge() * Active_Weight())) * CH.LC_Weight;
 			S.To().Get_CN(TN, CH).Stimulation += Claim;
 			// ST Claims TODO
 
 
 		}
+		
 		// Logic TODO
 		// Meta TODO
-		// Channel Feeds TODO
 		
-		// Reset Update Rating
-		Stimulation = 0.0;
-		
-		// Sort in update queue TODO
+		// Channel Feeds
+		for (int CH_Itr = 0; CH_Itr < CH.Feeds_To.size(); CH_Itr++) {
+			Channel To_CH = CH.Feeds_To.get(CH_Itr);
+			Charge_Node To_CN = N.Get_CN(TN, To_CH);
+			double Claim = 0.0;
+			Claim = Math.abs(Active_Charge() - To_CN.Active_Charge());
+			Claim *= To_CH.CH_Weight;
+			To_CN.Stimulation += Claim;
+		}
 	}
-	
-	void Reset_Working() {
-		Charge = 0.0;
-		Weight = 0.0;
+		
+	public void Set_Active (double New_Charge, double New_Weight) {
+		Current_Charge = New_Charge;
+		Current_Weight = New_Weight;
+		Stimulation = 0.0;
+		Update_Connected();
+		Sort_NN();
 	}
 	
 	

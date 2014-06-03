@@ -45,8 +45,8 @@ public class Synapse {
 	public Neural_Network NN;
 	
 	// Long term
-	public double LT_Strength;
-	public double LT_Weight;
+	private int LT_Total; // Total times from is active
+	private int LT_Count; // Total times to & from have been true
 	
 	// Short term
 	public double ST_Strength;
@@ -66,10 +66,10 @@ public class Synapse {
 		From = N_From;
 		NN = N_From.Get_NN();
 		
-		LT_Strength = 0.0;
-		LT_Weight = 0.0;
-		LT_Strength = 0.0;
-		LT_Weight = 0.0;
+		LT_Total = 0;
+		LT_Count = 0;
+		ST_Strength = 0.0;
+		ST_Weight = 0.0;
 	}
 	
 	public Neuron To(){return To;}
@@ -84,7 +84,7 @@ public class Synapse {
 		Print_Header();
 		System.out.print(" " + From.Alias + " --> " + To.Alias);
 		Print_Header();
-		System.out.print(" Long-Term: " + LT_Strength*100 + "% (" + LT_Weight + ")");
+		System.out.print(" Long-Term: " + LT_Ratio()*100 + "% (" + LT_Weight() + ")");
 	}
 
 	/*
@@ -99,6 +99,17 @@ public class Synapse {
 		To.Print_Header(2);
 	}
 
+	public double LT_Ratio(){return (double) LT_Count / (double) LT_Total;}
+	public double LT_Weight(){return (double) LT_Total;}
+	
+	public void Update(Channel CH, Time_Node TN) {
+		Charge_Node From_CN = From.Get_CN(TN, CH);
+		Charge_Node To_CN = To.Get_CN(TN, CH);
+		if (From_CN.Active_Charge() < 1.00) return;
+		LT_Total++;
+		if (To_CN.Active_Charge() == 1.00) LT_Count++;
+	}
+	
 }
 
 //------------------------------------------------------------------------------------------

@@ -1,0 +1,120 @@
+//==========================================================================================
+//
+//	Synapse
+//
+//	Overview: The "If then" the association between two neurons.
+//		If one neuron is active how likely is it that another should be active?
+//
+//==========================================================================================
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Includes, Packages, Headers
+//
+//------------------------------------------------------------------------------------------
+
+// Package
+package RASA;
+
+//Includes
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Includes, Packages, Headers
+//
+//==========================================================================================
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//==========================================================================================
+//
+//	[START] Synapse Class
+//
+//------------------------------------------------------------------------------------------
+
+public class Synapse {
+
+	//=====================================================================
+	//
+	// CLASS FIELDS
+	//
+	//---------------------------------------------------------------------
+	
+	private Neuron To;
+	private Neuron From;
+	public Neural_Network NN;
+	
+	// Long term
+	private int LT_Total; // Total times from is active
+	private int LT_Count; // Total times to & from have been true
+	
+	// Short term
+	public double ST_Strength;
+	public double ST_Weight;
+	
+	//=====================================================================
+	//
+	// CLASS METHODS
+	//
+	//---------------------------------------------------------------------
+	
+	// Constructor
+	public Synapse(Neuron N_To, Neuron N_From) {
+		// Initialize variables
+		super();
+		To = N_To;
+		From = N_From;
+		NN = N_From.Get_NN();
+		
+		LT_Total = 0;
+		LT_Count = 0;
+		ST_Strength = 0.0;
+		ST_Weight = 0.0;
+	}
+	
+	public Neuron To(){return To;}
+	public Neuron From(){return From;}
+
+	//==========================================
+	// Reports
+	//------------------------------------------
+	
+	public void Print_Report(String Tags) {
+
+		Print_Header();
+		System.out.print(" " + From.Alias + " --> " + To.Alias);
+		Print_Header();
+		System.out.print(" Long-Term: " + LT_Strength*100 + "% (" + LT_Weight + ")");
+	}
+
+	/*
+	public void Print_Label() {
+		System.out.print("[N:" + ID + "]");
+	} */
+
+	public void Print_Header() {
+		System.out.print("\n");
+		From.Print_Header(2);
+		System.out.print(" --> ");
+		To.Print_Header(2);
+	}
+
+	public double LT_Ratio(){
+		return 5.double;
+	}
+	
+	public void Update(Channel CH, Time_Node TN) {
+		Charge_Node From_CN = From.Get_CN(TN, CH);
+		Charge_Node To_CN = To.Get_CN(TN, CH);
+		if (From_CN.Active_Charge() < 1.00) return;
+		LT_Total++;
+		if (To_CN.Active_Charge() == 1.00) LT_Count++;
+	}
+	
+}
+
+//------------------------------------------------------------------------------------------
+//
+//	[END] Synapse Class
+//
+//==========================================================================================

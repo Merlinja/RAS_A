@@ -39,14 +39,10 @@ import RASA.Time_Node;
 public class Input_Neuron extends Neuron {
 
 	boolean Active;
-	
-	protected Input_Neuron() {
-		super();
-		Active = false;
-	}
-	
+		
 	public Input_Neuron(int Given_ID, Neural_Group Given_NG) {
 		super(Given_ID, Given_NG);
+		Active = false;
 	}
 
 	public void Activate() {
@@ -56,11 +52,9 @@ public class Input_Neuron extends Neuron {
 	public void Activate(Channel CH) {
 		Time_Node TN = Get_NN().First_IC.Get_TN();
 		Charge_Node CN = Get_CN(TN, CH);
-		CN.Current_Charge = 1.0;
-		CN.Current_Weight = 1.0;
+		CN.Set_Active(1.0, 1.0);
 		Active = true;
-		
-		CN.Update();
+		CN.Lock();
 	}
 	
 	public void Print_Report(String Tags) {

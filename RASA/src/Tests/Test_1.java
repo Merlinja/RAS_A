@@ -65,12 +65,17 @@ public class Test_1 {
 		NN.Update_Synapses("ABSOLUTE, DEBUG");
 		
 		NN.Print_Report("FULL");
-		NN.First_IC.Print_Report("");
+		
+		NN.Print_Update_Queue(10);
+		NN.Analyze_Input(4);
+		NN.Update_Synapses("ABSOLUTE, DEBUG");
+		NN.Print_Update_Queue(20);
+		NN.Print_Synapses("");
+
 		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
+		NN.Punish_Driver_N.Activate();
+		NN.Print_Update_Queue(20);
+		
 	}
 }
 
