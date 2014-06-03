@@ -81,8 +81,7 @@ public class Time_Node {
 			Print_Header();
 			System.out.print("========================================");
 			Print_Header();
-			System.out.print(" Printing Time Node: ");
-			System.out.format("%+d (%d)", Relative_Time(), Actual_Time());
+			System.out.print(" Printing Time Node: " + Time);
 			Print_Header();
 			System.out.print("----------------------------------------");
 
@@ -97,8 +96,8 @@ public class Time_Node {
 	}
 
 	public void Print_Label() {
-		System.out.format("[TN:%+d]", Relative_Time());
-		//System.out.print("[TN:" + Relative_Time() + "]");
+		System.out.format("%+8d%n", Relative_Time());
+		System.out.print("[TN:" + Relative_Time() + "]");
 	}
 
 	public void Print_Header() {

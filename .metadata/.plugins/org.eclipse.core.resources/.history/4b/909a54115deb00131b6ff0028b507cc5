@@ -59,18 +59,12 @@ public class Test_1 {
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(3), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(1), CH1);
-		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(-4), CH1);
 		NN.Reward_Driver_N.Get_CN(NN.First_IC.Get_TN(), CH1);
 
 		NN.Update_Synapses("ABSOLUTE, DEBUG");
 		
 		NN.Print_Report("FULL");
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
+		if (NG1 == NG2) return;
 	}
 }
 

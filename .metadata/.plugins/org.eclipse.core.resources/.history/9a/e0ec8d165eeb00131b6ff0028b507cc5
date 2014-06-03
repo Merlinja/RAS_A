@@ -67,10 +67,6 @@ public class Test_1 {
 		NN.Print_Report("FULL");
 		NN.First_IC.Print_Report("");
 		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
-		NN.First_IC.Print_Report("");
-		NN.Advance_Clock();
 	}
 }
 
