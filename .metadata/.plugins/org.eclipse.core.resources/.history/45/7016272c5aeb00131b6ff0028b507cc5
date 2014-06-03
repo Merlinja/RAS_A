@@ -66,39 +66,32 @@ public class Internal_Clock {
 	// TODO Finish this guy
 	// Uses relative time
 	public Time_Node Get_TN(int Time) {
-		System.out.print("\n\nLooking for " + Time);
 		// Check if list is empty
 		if (Current_TN == null) {
 			// Create new nodes
-			Current_TN = new Time_Node(Generate_Next_Time(), this);
+			Current_TN = new Time_Node(Current_Time, this);
 			First_TN = Current_TN;
 			Last_TN = Current_TN;
 		}
 		
-		if (Time == 0) return Current_TN;
-		
 		// Find start point to search
 		Time_Node TN = Current_TN;
-		while (TN.Relative_Time() != Time) {
-			if (TN.Relative_Time() < Time) {		
+		int Displacement = 0;
+		while (TN.Actual_Time() != Time) {
+			if (TN.Actual_Time() < Time) {
+				// Search forward
+				Displacement++;
+				
 				// Check if next exists
-				if (TN.Next == null) {
-					// Create next
-					TN.Next = new Time_Node(Generate_Next_Time(), this);
+				if (TN.Next != null) {
+					TN = TN.Next;
+				} else { // Create next
+					TN.Next = new Time_Node(Current_Time + Displacement, this);
 					TN.Next.Prev = TN;
-					Last_TN = TN.Next;
 				}
-				TN = TN.Next;
-			} else if (TN.Relative_Time() > Time) {
+			} else {
 				// Search backward
-				// Check if prev exists
-				if (TN.Prev == null) {
-					// Create next
-					TN.Prev = new Time_Node(TN.Actual_Time() - 1, this);
-					TN.Prev.Next = TN;
-					First_TN = TN.Prev;
-				}		
-				TN = TN.Prev;
+				Displacement--;
 			}
 		}
 		

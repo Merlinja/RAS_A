@@ -113,7 +113,7 @@ public class Time_Node {
 	}
 	
 	public int Relative_Time() {
-		return Time - Parent_IC.Current_Time();
+		return Time - Parent_IC.Get_TN().Time;
 	}
 	
 	

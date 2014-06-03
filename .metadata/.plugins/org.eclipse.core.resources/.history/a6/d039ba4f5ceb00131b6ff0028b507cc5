@@ -75,7 +75,7 @@ public class Internal_Clock {
 			Last_TN = Current_TN;
 		}
 		
-		if (Time == 0) return Current_TN;
+		System.out.print("\nCurrent_TN = " + Current_TN.Actual_Time());
 		
 		// Find start point to search
 		Time_Node TN = Current_TN;
