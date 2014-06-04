@@ -114,11 +114,9 @@ public class Neural_Network {
 		Reward_Driver_N = Default_Driver_NG.New_Neuron("INPUT");
 		Reward_Driver_N.Alias = "Reward Driver";
 		Reward_Driver_N.Force_Alias = true;
-		Reward_Driver_N.Shrink_Header = true;
 		Punish_Driver_N = Default_Driver_NG.New_Neuron("INPUT");
 		Punish_Driver_N.Alias = "Punishment Driver";
 		Punish_Driver_N.Force_Alias = true;
-		Punish_Driver_N.Shrink_Header = true;
 		
 		// Set up default internal clocks
 		First_IC = new Internal_Clock();

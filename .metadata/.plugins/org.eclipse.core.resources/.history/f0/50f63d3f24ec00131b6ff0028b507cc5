@@ -81,8 +81,8 @@ public class Synapse {
 	
 	public void Print_Report(String Tags) {
 
-		//Print_Header();
-		//System.out.print(" " + From.Alias + " --> " + To.Alias);
+		Print_Header();
+		System.out.print(" " + From.Alias + " --> " + To.Alias);
 		Print_Header();
 		System.out.print(" Long-Term: " + LT_Ratio()*100 + "% (" + LT_Weight() + ")");
 	}

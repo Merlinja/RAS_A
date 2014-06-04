@@ -173,7 +173,9 @@ public class Neural_Group {
 	// Neuron Management
 	//------------------------------------------
 	
-	private int Generate_Next_N_ID (){return Next_N_ID++;}
+	private int Generate_Next_N_ID (){
+		return Next_N_ID++;
+	}
 	
 	public void Add_Feeder(Neural_Group New_Feeder) {
 		for (int NG = 0; NG < Feed_From.size(); NG++)

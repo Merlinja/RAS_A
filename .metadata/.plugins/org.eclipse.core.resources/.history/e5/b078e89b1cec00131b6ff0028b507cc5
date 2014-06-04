@@ -72,7 +72,6 @@ public class Neural_Group {
 		Alias = "New NG";
 		Next_N_ID = 1;
 		ID = 0;
-		Force_Alias = false;
 	}
 
 	//==========================================
@@ -156,8 +155,7 @@ public class Neural_Group {
 	}
 
 	public void Print_Label() {
-		if (Force_Alias) System.out.print("[" + Alias + "]");
-		else System.out.print("[NG:" + ID + "]");
+		System.out.print("[NG:" + ID + "]");
 	}
 	
 	public void Print_Header() {
@@ -173,7 +171,9 @@ public class Neural_Group {
 	// Neuron Management
 	//------------------------------------------
 	
-	private int Generate_Next_N_ID (){return Next_N_ID++;}
+	private int Generate_Next_N_ID (){
+		return Next_N_ID++;
+	}
 	
 	public void Add_Feeder(Neural_Group New_Feeder) {
 		for (int NG = 0; NG < Feed_From.size(); NG++)

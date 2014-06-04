@@ -122,7 +122,10 @@ public class Charge_Node {
 		}
 	}
 	
-
+	public int Time() {
+		return TN.Actual_Time();
+	}
+	
 	public int Actual_Time() {return TN.Actual_Time();}
 	public int Relative_Time() {return TN.Relative_Time();}
 	
@@ -162,7 +165,7 @@ public class Charge_Node {
 		if (B == null && D == null) {}
 		
 		// (I.2) * * C D * --> * * D C *
-		else if ((D != null) && ((D.CH.ID < C.CH.ID) || (D.CH.ID == C.CH.ID && D.Actual_Time() < C.Actual_Time()))) {
+		else if ((D != null) && ((D.CH.ID < C.CH.ID) || (D.CH.ID == C.CH.ID && D.Time() < C.Time()))) {
 			C.N_Next = E;
 			if (E != null) E.N_Prev = C;
 			C.N_Prev = D;
@@ -174,7 +177,7 @@ public class Charge_Node {
 		}
 		
 		// (I.3) * B C * * --> * C B * *
-		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Actual_Time() < B.Actual_Time()))) {
+		else if ((B != null) && ((C.CH.ID < B.CH.ID) || (C.CH.ID == B.CH.ID && C.Time() < B.Time()))) {
 			if (A == null) C.N.First_CN = C;
 			else A.N_Next = C;
 			B.N_Prev = C;
@@ -351,12 +354,10 @@ public class Charge_Node {
 		
 		// Channel feeds
 		Update_CH();
-		Print_Header();
-		System.out.print(" Potential: " + Potential_Sum + "/" + Potential_Weight);
 		
+		
+		Current_Charge = Potential_Sum;
 		Current_Weight = Potential_Weight;
-		if (Potential_Weight == 0) Potential_Weight = 1;
-		Current_Charge = Potential_Sum / Potential_Weight;
 		
 		Set_Active(Current_Charge, Current_Weight);
 		
@@ -390,7 +391,7 @@ public class Charge_Node {
 			double S_Strength = Math.min(Highest_Claim, S.LT_Ratio());
 			S_Strength *= S.From().Active_Charge(TN, CH);
 			S_Strength *= S.LT_Weight();
-			Weight += S.LT_Weight() * S.From().Active_Charge(TN, CH);
+			Weight += S.LT_Weight();
 			Charge += S_Strength;
 		}
 		Potential_Weight += Weight * CH.LT_Weight;

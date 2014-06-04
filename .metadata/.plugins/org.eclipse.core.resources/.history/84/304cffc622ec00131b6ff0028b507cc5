@@ -138,8 +138,7 @@ public class Neuron {
 	public void Print_Header() {Print_Header (5);}
 	
 	public void Print_Header(int Depth) {
-		if (Depth > 2 && Shrink_Header) System.out.print("\n");
-		else if (Depth > 1 && !Shrink_Header) Parent_NG.Print_Header(Depth-1);
+		if (Depth > 1 && !Shrink_Header) Parent_NG.Print_Header(Depth-1);
 		if (Depth > 0) Print_Label();
 	}
 	

@@ -47,8 +47,6 @@ public class Neuron {
 	protected Channel Seeded_CH;
 	public String Alias;
 	public Charge_Node First_CN;
-	public boolean Force_Alias;
-	public boolean Shrink_Header;
 	
 	// Synapses
 	public List<Synapse> In_Synapses = new ArrayList<Synapse>();
@@ -66,8 +64,6 @@ public class Neuron {
 		Parent_NG = null;
 		Alias = "New Neuron";
 		First_CN = null;
-		Force_Alias = false;
-		Shrink_Header = false;
 	}
 	
 	public Neuron(int Given_ID, Neural_Group Given_NG){
@@ -131,15 +127,16 @@ public class Neuron {
 	}
 	
 	public void Print_Label() {
-		if (Force_Alias) System.out.print("[" + Alias + "]");
-		else System.out.print("[N:" + ID + "]");
+		System.out.print("[N:" + ID + "]");
 	}
 
-	public void Print_Header() {Print_Header (5);}
+	public void Print_Header() {
+		Parent_NG.Print_Header();
+		Print_Label();
+	}
 	
 	public void Print_Header(int Depth) {
-		if (Depth > 2 && Shrink_Header) System.out.print("\n");
-		else if (Depth > 1 && !Shrink_Header) Parent_NG.Print_Header(Depth-1);
+		if (Depth > 1) Parent_NG.Print_Header(Depth-1);
 		if (Depth > 0) Print_Label();
 	}
 	
